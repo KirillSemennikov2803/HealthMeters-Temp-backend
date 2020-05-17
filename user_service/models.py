@@ -8,6 +8,7 @@ class User(models.Model):
     company = models.ForeignKey("license_service.Company", on_delete=models.CASCADE,
                                 related_name="User to company")
     position = models.CharField()
+    full_name = models.CharField()
 
 
 class ManageToUser(models.Model):

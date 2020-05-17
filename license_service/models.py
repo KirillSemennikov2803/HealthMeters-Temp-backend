@@ -12,7 +12,6 @@ class Company(models.Model):
 class CompanyLicense(models.Model):
     company = models.OneToOneField("license_service.Company", on_delete=models.CASCADE,
                                    related_name="company license to company")
-    start_time = models.DateField(null=True)
     end_time = models.DateField(null=True)
     count_of_people = models.IntegerField()
 
