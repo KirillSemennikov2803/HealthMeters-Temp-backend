@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 
+from main.response_processing import get_success_response
 from user_service.models import User, ManageToUser, HealthData
 
 
@@ -23,4 +24,4 @@ class UserView(APIView):
                                       "last_temp": last_data.temperature
                                       })
 
-                return
+                return get_success_response(data)
