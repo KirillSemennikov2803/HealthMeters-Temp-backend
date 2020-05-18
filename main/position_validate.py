@@ -16,4 +16,5 @@ def validate_attach_admin(manger: User, worker: User):
     return False
 
 
-def validate_company_context_attach(admin):
+def validate_company_context_attach(admin: User, manage: User, worker: User):
+    return admin.company == manage.company == worker.company
