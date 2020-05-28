@@ -14,14 +14,26 @@ class UserView(APIView):
             subordinates = ManageToUser.objects.filter(manage=user)
             data = {"users": []}
             for subordinate in subordinates:
-                last_data = HealthData.objects.latest(user=subordinate)
+                last_data = HealthData.objects.latest(user=subordinate.user)
                 if not last_data:
                     data["users"].append({"full_name": subordinate.full_name,
                                           "last_temp": "Отсутствуют измерения"
                                           })
                 last_data = last_data[0]
-                data["users"].append({"full_name": subordinate.full_name,
-                                      "last_temp": last_data.temperature
+                data["users"].append({"full_name": subordinate.user.full_name,
+                                      "last_temp": last_data.temperature,
+                                      'date': last_data.date
                                       })
 
                 return get_success_response(data)
+
+        elif type == "admin statistics":
+            user = User.objects.filter(telegram_id=telegram_id)[0]
+            company = user.company
+            workers_count = User.objects.filter(company=company, position='worker').count
+            manager_count = User.objects.filter(company=company, position='manager').count
+            data = {
+                'workers_count': workers_count,
+                'manager_count': manager_count
+            }
+            return get_success_response(data)

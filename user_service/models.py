@@ -3,11 +3,19 @@ from django.db import models
 
 # Create your models here.
 
+
 class User(models.Model):
     telegram_id = models.CharField(max_length=36)
     company = models.ForeignKey("license_service.Company", on_delete=models.CASCADE,
                                 related_name="User to company")
-    position = models.CharField()
+    telegram_nick = models.CharField(max_length=36)
+    positions = [
+        ('god', 'god'),
+        ('admin', 'admin'),
+        ('manager', 'manager'),
+        ('worker', 'worker'),
+    ]
+    position = models.CharField(choices=positions)
     full_name = models.CharField()
 
 
