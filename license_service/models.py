@@ -4,14 +4,14 @@ from django.db import models
 # Create your models here.
 
 class Company(models.Model):
-    license = models.OneToOneField("license_service.License", on_delete=models.CASCADE,
-                                   related_name="company to license")
+    license = models.OneToOneField("license_service.CompanyLicense", on_delete=models.CASCADE,
+                                   related_name="company_to_license")
     active_people = models.IntegerField(default=1)
 
 
 class CompanyLicense(models.Model):
     company = models.OneToOneField("license_service.Company", on_delete=models.CASCADE,
-                                   related_name="company license to company")
+                                   related_name="company_license_to_company")
     end_time = models.DateField(null=True)
     count_of_people = models.IntegerField()
 

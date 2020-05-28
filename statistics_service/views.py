@@ -7,16 +7,16 @@ from user_service.models import User, ManageToUser, HealthData
 
 class UserView(APIView):
     def post(self, request):
-        type = request["type"]
-        telegram_id = request["telegram_id"]
-        if type == "manage statistics":
-            user = User.objects.filter(telegram_id=telegram_id)
-            subordinates = ManageToUser.objects.filter(manage=user)
+        _type = request.data["type"]
+        telegram_id = request.data["telegram_id"]
+        if _type == "manage_statistics":
+            user = User.objects.filter(telegram_id=telegram_id)[0]
+            subordinates = ManageToUser.objects.filter(manager=user)
             data = {"users": []}
             for subordinate in subordinates:
-                last_data = HealthData.objects.latest(user=subordinate.user)
+                last_data = HealthData.objects.filter(user=subordinate.user).last()
                 if not last_data:
-                    data["users"].append({"full_name": subordinate.full_name,
+                    data["users"].append({"full_name": subordinate.user.full_name,
                                           "last_temp": "Отсутствуют измерения"
                                           })
                 last_data = last_data[0]
@@ -27,7 +27,7 @@ class UserView(APIView):
 
                 return get_success_response(data)
 
-        elif type == "admin statistics":
+        elif _type == "admin_statistics":
             user = User.objects.filter(telegram_id=telegram_id)[0]
             company = user.company
             workers_count = User.objects.filter(company=company, position='worker').count

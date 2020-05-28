@@ -18,29 +18,29 @@ class UserView(APIView):
         type_license = request.data["type_license"]
         user_telegram_id = request.data["user_telegram_id"]
         if type_license == "registration":
-            license = License.objects.filter(key=license_key)
-            if not license:
+            license_db = License.objects.filter(key=license_key)
+            if not license_db:
                 get_success_response({"status": "no license"})
-            license = license[0]
-            if not license.active:
+            license_db = license_db[0]
+            if not license_db.active:
                 get_success_response({"status": "overdue license"})
             company_license = CompanyLicense.objects.create(start_time=datetime.now(),
-                                                            end_time=datetime.now() + timedelta(days=license.duration))
+                                                            end_time=datetime.now() + timedelta(days=license_db.duration))
             company = Company.objects.create(license=company_license)
             user = User.objects.create(telegram_id=user_telegram_id, company=company, position="super_admin")
             get_success_response({"status": "ok"})
-        else:
+        elif type_license == "renewal":
             user = User.objects.filter(telegram_id=user_telegram_id)[0]
             company = user.company
             company_license = company.license
-            license = RenewalLicense.objects.filter(key=license_key)
-            if not license:
+            license_db = RenewalLicense.objects.filter(key=license_key)
+            if not license_db:
                 get_success_response({"status": "no license"})
-            license = license[0]
-            if not license.active:
+            license_db = license_db[0]
+            if not license_db.active:
                 get_success_response({"status": "overdue license"})
-            company_license.end_time += timedelta(days=license.duration)
-            company_license.count_of_people += license.count_of_people
+            company_license.end_time += timedelta(days=license_db.duration)
+            company_license.count_of_people += license_db.count_of_people
             company_license.save()
             get_success_response({"status": "ok"})
 

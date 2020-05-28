@@ -10,7 +10,7 @@ def validate_admin_site_add_delete(role: str, user: User):
 
 
 def validate_attach_admin(manger: User, worker: User):
-    if manger.position == "manger":
+    if manger.position == "manager":
         if worker.position == "worker":
             return True
     return False

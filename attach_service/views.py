@@ -11,12 +11,12 @@ from user_service.models import User, ManageToUser
 class UserView(APIView):
     def post(self, request):
         try:
-            telegram_id = request["telegram_id"]
-            manager = request["manager_id"]
-            worker = request["worker_id"]
-            manager = User.objects.filter(telegram_id=manager)
-            worker = User.objects.filter(telegram_id=worker)
-            user = User.objects.filter(telegram_id=telegram_id)
+            telegram_id = request.data["telegram_id"]
+            manager_id = request.data["manager_id"]
+            worker_id = request.data["worker_id"]
+            manager = User.objects.filter(telegram_id=manager_id)
+            worker = User.objects.filter(telegram_id=worker_id)
+            user = User.objects.filter(telegram_id=telegram_id)[0]
             if not manager or not worker:
                 return get_success_response({"status": "have not user"})
             manager = manager[0]
