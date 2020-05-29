@@ -25,4 +25,5 @@ urlpatterns = [
     path('manage/', include('manage_service.urls')),
     path('statistic/', include('statistics_service.urls')),
     path('user/', include('user_service.urls')),
+    path('position/', include('user_position_service.urls')),
 ]

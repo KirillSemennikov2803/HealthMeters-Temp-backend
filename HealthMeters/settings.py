@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'list_of_people_service',
     'manage_service',
     'statistics_service',
-    'user_service'
+    'user_service',
+    'user_position_service'
 ]
 
 MIDDLEWARE = [
