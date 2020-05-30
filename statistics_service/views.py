@@ -25,7 +25,7 @@ class UserView(APIView):
                                       'date': last_data.date
                                       })
 
-                return get_success_response(data)
+            return get_success_response(data)
 
         elif _type == "admin_statistics":
             user = User.objects.filter(telegram_id=telegram_id)[0]
