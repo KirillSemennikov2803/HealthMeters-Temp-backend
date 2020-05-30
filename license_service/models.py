@@ -5,13 +5,13 @@ from django.db import models
 
 class Company(models.Model):
     license = models.OneToOneField("license_service.CompanyLicense", on_delete=models.CASCADE,
-                                   related_name="company_to_license")
+                                   related_name="company_to_license", null=True, blank=True)
     active_people = models.IntegerField(default=1)
 
 
 class CompanyLicense(models.Model):
     company = models.OneToOneField("license_service.Company", on_delete=models.CASCADE,
-                                   related_name="company_license_to_company")
+                                   related_name="company_license_to_company", null=True, blank=True)
     end_time = models.DateField(null=True)
     count_of_people = models.IntegerField()
 
