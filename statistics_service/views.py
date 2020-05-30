@@ -19,8 +19,9 @@ class UserView(APIView):
                     data["users"].append({"full_name": subordinate.user.full_name,
                                           "last_temp": "Отсутствуют измерения"
                                           })
-                last_data = last_data.last()
-                data["users"].append({"full_name": subordinate.user.full_name,
+                else:
+                    last_data = last_data.last()
+                    data["users"].append({"full_name": subordinate.user.full_name,
                                       "last_temp": last_data.temperature,
                                       'date': last_data.date
                                       })
