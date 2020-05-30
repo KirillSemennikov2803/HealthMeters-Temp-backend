@@ -21,7 +21,7 @@ class UserView(APIView):
                 data["users"].append({"full_name": subordinate.user.full_name,
                                       "telegram_nick": subordinate.user.telegram_nick
                                       })
-                return get_success_response(data)
+            return get_success_response(data)
         elif _type == "admin_list":
             user = User.objects.filter(telegram_id=telegram_id)[0]
             company = user.company
@@ -32,4 +32,4 @@ class UserView(APIView):
                                       "telegram_nick": subordinate.user.telegram_nick,
                                       "position": subordinate.position
                                       })
-                return get_success_response(data)
+            return get_success_response(data)
