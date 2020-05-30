@@ -19,7 +19,8 @@ class UserView(APIView):
             data = {"users": []}
             for subordinate in subordinates:
                 data["users"].append({"full_name": subordinate.user.full_name,
-                                      "telegram_nick": subordinate.user.telegram_nick
+                                      "telegram_nick": subordinate.user.telegram_nick,
+                                      "telegram_id": subordinate.user.telegram_id
                                       })
             return get_success_response(data)
         elif _type == "admin_list":
@@ -30,6 +31,6 @@ class UserView(APIView):
             for subordinate in subordinates:
                 data["users"].append({"full_name": subordinate.user.full_name,
                                       "telegram_nick": subordinate.user.telegram_nick,
-                                      "position": subordinate.position
+                                      "position": subordinate.user.position
                                       })
             return get_success_response(data)
