@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import datetime
 
 from django.shortcuts import render
 
@@ -7,48 +7,43 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from license_service.models import Company, License, CompanyLicense, RenewalLicense
+from license_service.models import Company, License
 from main.response_processing import get_success_response
+from main.sessions_storage import get_user
 from user_service.models import User
+
+epoch = datetime.datetime.utcfromtimestamp(0)
+
+
+def unix_time_millis(dt):
+    return round((dt - epoch).total_seconds() * 1000)
 
 
 class UserView(APIView):
     def post(self, request):
-        license_key = request.data["license_key"]
-        type_license = request.data["type_license"]
-        user_telegram_id = request.data["user_telegram_id"]
-        if type_license == "registration":
-            license_db = License.objects.filter(key=license_key)
-            if not license_db:
-                get_success_response({"status": "no license"})
-            license_db = license_db[0]
-            if not license_db.active:
-                get_success_response({"status": "overdue license"})
-            company_license = CompanyLicense.objects.create(start_time=datetime.now(),
-                                                            end_time=datetime.now() + timedelta(days=license_db.duration))
-            company = Company.objects.create(license=company_license)
-            user = User.objects.create(telegram_id=user_telegram_id, company=company, position="super_admin")
-            get_success_response({"status": "ok"})
-        elif type_license == "renewal":
-            user = User.objects.filter(telegram_id=user_telegram_id)[0]
-            company = user.company
-            company_license = company.license
-            license_db = RenewalLicense.objects.filter(key=license_key)
-            if not license_db:
-                get_success_response({"status": "no license"})
-            license_db = license_db[0]
-            if not license_db.active:
-                get_success_response({"status": "overdue license"})
-            company_license.end_time += timedelta(days=license_db.duration)
-            company_license.count_of_people += license_db.count_of_people
-            company_license.save()
-            get_success_response({"status": "ok"})
+        session = request.data["session"]
+        company_name = get_user(session)
+        company = Company.objects.filter(name=company_name)
+        now = unix_time_millis(datetime.datetime.utcnow())
 
-    def get(self, request):
-        params = request.query_params
-        telegram_id = params["telegram_id"]
-        user = User.objects.filter(telegram_id=telegram_id)[0]
-        license = user.company.license
-        return get_success_response({"count_of_people": license.count_of_people,
-                                     "free_people": license.count_of_people - user.company.active_people,
-                                     "end_time": license.end_time})
+        if company:
+            company = company[0]
+            licences = License.objects.filter(company=company)
+            data = []
+            for licence in licences:
+                licence_start_time = unix_time_millis(
+                    datetime.datetime.utcfromtimestamp(licence.start_date.timestamp()))
+                licence_end_time = unix_time_millis(
+                    datetime.datetime.utcfromtimestamp(licence.end_date.timestamp()))
+                data.append({
+                    "from": licence_start_time,
+                    "to": licence_end_time,
+                    "peopleCount": licence.count_of_people
+                })
+            body = {
+                "data": data,
+                "currentServerTime": now
+            }
+            return get_success_response({"status": 'ok'})
+        else:
+            return get_success_response({"status": 'out of company'})

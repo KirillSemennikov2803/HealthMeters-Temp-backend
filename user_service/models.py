@@ -19,7 +19,7 @@ class User(models.Model):
     full_name = models.CharField(max_length=36)
 
     def __str__(self):
-        return self.telegram_id
+        return self.telegram_nick
 
 
 @admin.register(User)
@@ -35,7 +35,7 @@ class ManageToUser(models.Model):
 
 
 @admin.register(ManageToUser)
-class UserAdmin(admin.ModelAdmin):
+class ManagerToUserAdmin(admin.ModelAdmin):
     list_display = ("manager", "user")
 
 
@@ -45,3 +45,8 @@ class HealthData(models.Model):
     temperature = models.FloatField()
     date = models.DateTimeField()
     get_latest_by = "date"
+
+
+@admin.register(HealthData)
+class HealthDataAdmin(admin.ModelAdmin):
+    list_display = ("user", "temperature", "date")

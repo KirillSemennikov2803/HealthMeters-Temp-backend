@@ -1,33 +1,32 @@
 from django.db import models
 
+from django.contrib import admin
+
 
 # Create your models here.
 
 class Company(models.Model):
-    license = models.OneToOneField("license_service.CompanyLicense", on_delete=models.CASCADE,
-                                   related_name="company_to_license", null=True, blank=True)
+    name = models.CharField(max_length=36, unique=True)
+    password_hash = models.CharField(max_length=36)
     active_people = models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.name
 
-class CompanyLicense(models.Model):
-    company = models.OneToOneField("license_service.Company", on_delete=models.CASCADE,
-                                   related_name="company_license_to_company", null=True, blank=True)
-    end_time = models.DateField(null=True)
-    count_of_people = models.IntegerField()
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ("name", "active_people")
 
 
 class License(models.Model):
-    active = models.BooleanField(default=True)
-    key = models.CharField(max_length=16)
-    # count of days
-    duration = models.IntegerField()
+    company = models.ForeignKey("license_service.Company", on_delete=models.CASCADE,
+                                related_name="License_to_company")
+    start_date = models.DateField()
+    end_date = models.DateField()
     count_of_people = models.IntegerField()
 
 
-class RenewalLicense(models.Model):
-    active = models.BooleanField(default=True)
-    key = models.CharField(max_length=16)
-    # count of days
-    duration = models.IntegerField()
-    delta_people = models.IntegerField(default=0)
-    pass
+@admin.register(License)
+class LicenseAdmin(admin.ModelAdmin):
+    list_display = ("company", "active_people", "start_date", "end_date", "count_of_people")
