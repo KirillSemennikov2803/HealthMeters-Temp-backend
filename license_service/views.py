@@ -44,6 +44,6 @@ class UserView(APIView):
                 "data": data,
                 "currentServerTime": now
             }
-            return get_success_response({"status": 'ok'})
+            return get_success_response(body)
         else:
             return get_success_response({"status": 'out of company'})
