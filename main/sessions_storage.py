@@ -1,5 +1,10 @@
 import uuid
+import datetime
+
 import redis as redis
+
+from general_module.models import Company, License
+from main.response_processing import get_unauthorized_response, get_success_response
 
 
 class InvalidData(Exception):
@@ -12,6 +17,48 @@ class InvalidData(Exception):
 "    This is an inner service and should not   "
 "    be used inside the handlers!              "
 """"""""""""""""""""""""""""""""""""""""""""""""
+
+
+def validate_session():
+    def request_dec(func):
+        def request_handler(self, request):
+            request_data = request.data
+            session = request_data["session"]
+            if user_authorized(session):
+                return func(self, request)
+            return get_unauthorized_response()
+
+        return request_handler
+
+    return request_dec
+
+
+def validate_license():
+    def request_dec(func):
+        def request_handler(self, request):
+            request_data = request.data
+            session = request_data["session"]
+            company_name = get_user(session)
+
+            company = Company.objects.filter(name=company_name)
+            if not company:
+                return get_unauthorized_response()
+
+            company = company[0]
+            now = datetime.datetime.utcnow()
+            license_bd = License.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
+
+            if not license_bd:
+                return get_success_response({
+                    "status": "error",
+                    "reason": "licenceExpired"
+                })
+
+            return func(self, request)
+
+        return request_handler
+
+    return request_dec
 
 
 class SessionsStorage:
