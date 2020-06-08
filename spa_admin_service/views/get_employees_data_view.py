@@ -5,22 +5,6 @@ from main.response_processing import get_success_response, get_error_response
 from main.sessions_storage import validate_session, validate_license
 
 
-# Входные данные: { session: guid, employees: {[guid]} }
-
-# Выходные данные:
-# {
-#   status: "ok",
-#  employeeData: {
-#     name: string,
-#    tgNick: string,
-#   role: "worker" | "manager",
-#  attachedManager?: guid | null
-# }
-# } | {
-#   status: "error",
-#  reason: "licenceExpired"
-# }
-
 class UserView(APIView):
     @validate_session
     @validate_license
