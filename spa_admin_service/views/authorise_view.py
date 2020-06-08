@@ -12,6 +12,7 @@ from main.response_processing import get_success_response, get_error_response
 from main.sessions_storage import authorize_user, validate_session
 
 
+## TODO: доделать
 class UserView(APIView):
     def post(self, request):
         try:

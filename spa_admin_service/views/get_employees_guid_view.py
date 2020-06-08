@@ -8,5 +8,4 @@ from main.sessions_storage import validate_session
 class UserView(APIView):
     @validate_session
     def post(self, request):
-
         pass

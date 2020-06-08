@@ -39,7 +39,8 @@ class AdminLicense(models.Model):
 
 
 class User(models.Model):
-    telegram_id = models.CharField(max_length=36, unique=True)
+    guid = models.CharField(max_length=36)
+    telegram_id = models.CharField(max_length=36, unique=True, null=True, blank=True)
     company = models.ForeignKey("license_service.Company", on_delete=models.CASCADE,
                                 related_name="User_to_company")
     telegram_nick = models.CharField(max_length=36, unique=True)
