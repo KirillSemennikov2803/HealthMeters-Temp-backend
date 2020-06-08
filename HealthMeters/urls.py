@@ -18,15 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin_db/', admin.site.urls),
-    path('admin/', include('admin_service.urls')),
+    path('spaAdmin/', include('spa_admin_service.urls')),
     path('attach/', include('attach_service.urls')),
-    path('license/', include('license_service.urls')),
-    path('list/', include('list_of_people_service.urls')),
-    path('manage/', include('manage_service.urls')),
-    path('statistic/', include('statistics_service.urls')),
-    path('user/', include('user_service.urls')),
-    path('position/', include('user_position_service.urls')),
-    path('user_spa/', include('session_service.urls')),
-    path('authorization/', include('authorization_service.urls')),
-    path('logout/', include('logout_service.urls')),
 ]

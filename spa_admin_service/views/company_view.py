@@ -18,22 +18,20 @@ class UserView(APIView):
         if not company:
             return get_unauthorized_response()
 
-        # {
-        # companyName: string
-        # attachedWorkersCount: unsigned integer
-        # currentLicence:
-        # null | {
-        #    startTime: unsigned integer,
-        #    endTime: unsigned integer,
-        #    workersCount: unsigned integer
-        #    }
-        # }
+        company = company[0]
+
         now = datetime.datetime.utcnow()
         license_bd = License.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
 
         current_licence = None
 
         if license_bd:
+            current_licence = {
+                "startTime": license_bd.start_date,
+                "endTime": license_bd.end_date,
+                "workersCount": license_bd.count_of_people
+            }
 
-
-        return get_success_response
+        return get_success_response({"companyName": company.name,
+                                     "attachedWorkersCount": company.active_people,
+                                     "currentLicence": current_licence})
