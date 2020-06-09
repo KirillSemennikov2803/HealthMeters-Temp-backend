@@ -28,7 +28,7 @@ class License(models.Model):
 
 @admin.register(License)
 class LicenseAdmin(admin.ModelAdmin):
-    list_display = ("company", "active_people", "start_date", "end_date", "count_of_people")
+    list_display = ("company", "start_date", "end_date", "count_of_people")
 
 
 class AdminLicense(models.Model):
@@ -41,7 +41,7 @@ class AdminLicense(models.Model):
 class User(models.Model):
     guid = models.CharField(max_length=36, primary_key=True)
     telegram_id = models.CharField(max_length=36, unique=True, null=True, blank=True)
-    company = models.ForeignKey("license_service.Company", on_delete=models.CASCADE,
+    company = models.ForeignKey("general_module.Company", on_delete=models.CASCADE,
                                 related_name="User_to_company")
     telegram_nick = models.CharField(max_length=36, unique=True)
     positions = [
@@ -63,9 +63,9 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class ManageToUser(models.Model):
-    manager = models.ForeignKey("user_service.User", on_delete=models.CASCADE,
+    manager = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
                                 related_name="manage_to_user")
-    user = models.ForeignKey("user_service.User", on_delete=models.CASCADE,
+    user = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
                              related_name="user_to_user")
 
 
@@ -75,7 +75,7 @@ class ManagerToUserAdmin(admin.ModelAdmin):
 
 
 class HealthData(models.Model):
-    user = models.ForeignKey("user_service.User", on_delete=models.CASCADE,
+    user = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
                              related_name="healthData_to_user")
     temperature = models.FloatField()
     date = models.DateTimeField()
