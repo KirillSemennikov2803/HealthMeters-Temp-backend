@@ -8,7 +8,7 @@ from main.sessions_storage import validate_session, validate_license, get_user
 
 
 class UserView(APIView):
-    @validate_session
+    @validate_session()
     def post(self, request):
         session = request.data["session"]
         company_name = get_user(session)

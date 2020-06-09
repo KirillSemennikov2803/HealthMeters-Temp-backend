@@ -13,21 +13,12 @@ from main.sessions_storage import authorize_user, validate_session, validate_lic
 
 
 class UserView(APIView):
-    @validate_session
-    @validate_license
+    @validate_session()
+    @validate_license()
     def post(self, request):
         try:
-            session = request.data["session"]
             employee_guid = request.data["employeeGuid"]
             employee_data = request.data["employeeData"]
-
-            full_name = employee_data["name"]
-            tg_nick = employee_data["tgNick"]
-            position = employee_data["role"]
-
-            company_name = get_user(session)
-
-            company = Company.objects.filter(name=company_name)[0]
 
             user = User.objects.filter(guid=employee_guid)
 
@@ -35,11 +26,20 @@ class UserView(APIView):
                 return get_success_response({"status": "error",
                                              "reason": "outTgAccount"})
 
+            full_name = employee_data["name"]
+            tg_nick = employee_data["tgNick"]
+            position = employee_data["role"]
+
             user = user[0]
 
             user.full_name = full_name
             user.telegram_nick = tg_nick
             user.position = position
+
+            check_full_name = User.objects.filter(full_name=full_name)
+            check_telegram_nick = User.objects.filter(telegram_nick=tg_nick)
+            if not check_full_name or not check_telegram_nick:
+                return get_success_response({"status": "usedTgAccount"})
             user.save()
 
             return get_success_response({"status": "ok"})

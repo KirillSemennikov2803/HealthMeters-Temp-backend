@@ -13,8 +13,8 @@ from main.sessions_storage import authorize_user, validate_session, validate_lic
 
 
 class UserView(APIView):
-    @validate_session
-    @validate_license
+    @validate_session()
+    @validate_license()
     def post(self, request):
         try:
             session = request.data["session"]

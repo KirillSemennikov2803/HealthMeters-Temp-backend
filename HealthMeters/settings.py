@@ -35,14 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'admin_service',
-    'attach_service',
-    'license_service',
-    'list_of_people_service',
-    'manage_service',
-    'statistics_service',
-    'user_service',
-    'user_position_service'
+    'telegram_bot_service',
+    'spa_admin_service',
+    'general_module'
 ]
 
 MIDDLEWARE = [

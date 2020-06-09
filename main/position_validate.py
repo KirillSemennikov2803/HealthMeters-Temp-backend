@@ -1,4 +1,4 @@
-from user_service.models import User
+from general_module.models import User
 
 
 def validate_admin_site_add_delete(role: str, user: User):

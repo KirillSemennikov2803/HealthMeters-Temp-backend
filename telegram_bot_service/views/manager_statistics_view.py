@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 
+from general_module.models import User, ManageToUser, HealthData
 from main.response_processing import get_success_response
-from user_service.models import User, ManageToUser, HealthData
 
 
 class UserView(APIView):

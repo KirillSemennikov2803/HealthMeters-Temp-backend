@@ -3,8 +3,8 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework.views import APIView
 
+from general_module.models import User
 from main.response_processing import get_success_response, get_error_response
-from user_service.models import User
 
 
 class UserView(APIView):
