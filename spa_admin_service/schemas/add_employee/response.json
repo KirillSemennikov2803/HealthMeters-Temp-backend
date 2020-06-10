@@ -1,0 +1,27 @@
+{
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "status": { "const": "ok" }
+      },
+      "required": ["status"],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": { "const": "error" },
+        "reason": {
+          "oneOf": [
+            { "const": "usedTgAccount" },
+            { "const": "licenceExpired" },
+            { "const": "licenceEmployeesBoundaryReached" }
+          ]
+        }
+      },
+      "required": ["status", "reason"],
+      "additionalProperties": false
+    }
+  ]
+}
