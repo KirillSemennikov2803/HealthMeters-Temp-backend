@@ -14,11 +14,8 @@ from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, validate_response
 from main.sessions_storage import authorize_user, validate_session, validate_license, get_user
 
-req_schema_file = open('../schemas/edit_employee/request.json')
-res_schema_file = open('../schemas/edit_employee/response.json')
-
-req_schema = json.load(req_schema_file)
-res_schema = json.load(res_schema_file)
+from spa_admin_service.schemas.edit_employee.request import req_schema
+from spa_admin_service.schemas.edit_employee.response import res_schema
 
 
 class UserView(APIView):

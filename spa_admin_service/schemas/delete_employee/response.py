@@ -1,4 +1,4 @@
-{
+res_schema ={
   "oneOf": [
     {
       "type": "object",
@@ -6,7 +6,7 @@
         "status": { "const": "ok" }
       },
       "required": ["status"],
-      "additionalProperties": false
+      "additionalProperties": False
     },
     {
       "type": "object",
@@ -20,7 +20,7 @@
         }
       },
       "required": ["status", "reason"],
-      "additionalProperties": false
+      "additionalProperties": False
     }
   ]
 }

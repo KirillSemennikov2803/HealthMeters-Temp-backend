@@ -1,11 +1,14 @@
-{
+req_schema = {
   "type": "object",
   "properties": {
     "session": { "$ref": "#/definitions/Guid" },
-    "employee": { "$ref": "#/definitions/Guid" }
+    "employees": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Guid" }
+    }
   },
-  "required": ["session", "employee"],
-  "additionalProperties": false,
+  "required": ["session"],
+  "additionalProperties": False,
   "definitions": {
     "Guid": {
       "type": "string",

@@ -8,11 +8,8 @@ from main.response_processing import get_success_response, get_error_response, g
     validate_response
 from main.sessions_storage import validate_session, get_user, validate_license
 
-req_schema_file = open('../schemas/get_employees/request.json')
-res_schema_file = open('../schemas/get_employees/response.json')
-
-req_schema = json.load(req_schema_file)
-res_schema = json.load(res_schema_file)
+from spa_admin_service.schemas.get_employees_data.request import req_schema
+from spa_admin_service.schemas.get_employees_data.response import res_schema
 
 
 class UserView(APIView):

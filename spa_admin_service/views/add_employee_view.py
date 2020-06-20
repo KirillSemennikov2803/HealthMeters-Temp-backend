@@ -8,12 +8,8 @@ from main.guid_generater import generate_user_guid
 from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, validate_response
 from main.sessions_storage import validate_session, validate_license, get_user
-
-req_schema_file = open('../schemas/add_employee/request.json')
-res_schema_file = open('../schemas/add_employee/response.json')
-
-req_schema = json.load(req_schema_file)
-res_schema = json.load(res_schema_file)
+from spa_admin_service.schemas.add_employee.request import req_schema
+from spa_admin_service.schemas.add_employee.response import res_schema
 
 
 class UserView(APIView):
