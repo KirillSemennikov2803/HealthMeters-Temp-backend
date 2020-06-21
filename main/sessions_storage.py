@@ -23,6 +23,8 @@ def validate_session():
     def request_dec(func):
         def request_handler(self, request):
             request_data = request.data
+            if request_data.get("session") is None:
+                return get_unauthorized_response()
             session = request_data["session"]
             if user_authorized(session):
                 return func(self, request)
