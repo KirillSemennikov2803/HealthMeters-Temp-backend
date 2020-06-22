@@ -1,39 +1,45 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminPanelLicence, Company
-from main import response_processing
-from main.response_processing import get_success_response, get_error_response
-from main.sessions_storage import authorize_user, validate_session
+from general_module.models import Company
+
+from main.request_validation import validate_request
+from main.response_processing import validate_response, server_error_response, cors_response
+from main.session_storage import authorize_user
+
+from spa_admin_service.schemas.authorize.request import req_schema
+from spa_admin_service.schemas.authorize.response import res_schema
 
 
-## TODO: доделать
 class UserView(APIView):
+    @validate_request(req_schema)
     def post(self, request):
         try:
             company_name = request.data["companyName"]
             password = request.data["password"]
             company = Company.objects.filter(name=company_name)
 
-            if not company:
-                return get_success_response({"status": "error",
-                                             "reason": "wrongCompanyName"})
+            if company is None:
+                return validate_response({
+                    "status": "error",
+                    "reason": "wrongCompanyName"
+                }, res_schema)
 
-            company = company[0]
+            else:
+                company = company[0]
 
-            if company.password_hash != password:
-                return get_success_response({"status": "error",
-                                             "reason": "wrongPassword"})
+            if company.password != password:
+                return validate_response({
+                    "status": "error",
+                    "reason": "wrongPassword"
+                }, res_schema)
 
-            return get_success_response({"status": "ok",
-                                         "session": authorize_user(company_name)})
+            else:
+                return validate_response({
+                    "status": "ok",
+                    "session": authorize_user(company.guid)
+                }, res_schema)
         except:
-            return get_error_response(500)
+            return server_error_response()
 
     def options(self, request, *args, **kwargs):
-        return response_processing.setup_cors_response_headers(Response(status=204))
+        return cors_response()

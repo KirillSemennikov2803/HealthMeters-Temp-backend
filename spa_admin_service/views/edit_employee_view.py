@@ -1,18 +1,9 @@
-import json
-
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminPanelLicence, Company, Employee
-from main import response_processing
+from general_module.models import Employee
 from main.request_validation import validate_request
-from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import authorize_user, validate_session, validate_licence, get_user
+from main.response_processing import server_error_response, validate_response, cors_response
+from main.request_validation import validate_session, validate_licence
 
 from spa_admin_service.schemas.edit_employee.request import req_schema
 from spa_admin_service.schemas.edit_employee.response import res_schema
@@ -21,34 +12,49 @@ from spa_admin_service.schemas.edit_employee.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_licence()
+    @validate_licence(res_schema)
     def post(self, request):
         try:
-            employee_guid = request.data["employeeGuid"]
+            employee_guid = request.data["employee"]
             employee_data = request.data["employeeData"]
+            initials = employee_data["initials"]
+            tg_username = employee_data["tgUsername"]
+            role = employee_data["role"]
 
-            user = Employee.objects.filter(guid=employee_guid)
+            employee = Employee.objects.filter(guid=employee_guid)
 
-            if not user:
-                return validate_response({"status": "error",
-                                          "reason": "outTgAccount"}, res_schema)
+            if employee is None:
+                return validate_response({
+                    "status": "error",
+                    "reason": "noEmployee"
+                }, res_schema)
 
-            full_name = employee_data["name"]
-            tg_nick = employee_data["tgUsername"]
-            position = employee_data["role"]
+            else:
+                employee = employee[0]
 
-            user = user[0]
+            employee_with_same_tg_username = Employee.objects.filter(telegram_nick=tg_username)
 
-            user.full_name = full_name
-            user.telegram_nick = tg_nick
-            user.position = position
-
-            check_full_name = Employee.objects.filter(full_name=full_name)
-            check_telegram_nick = Employee.objects.filter(telegram_nick=tg_nick)
-            if not check_full_name or not check_telegram_nick:
+            if employee_with_same_tg_username is not None and\
+                    employee_with_same_tg_username[0].guid is not employee.guid:
                 return validate_response({"status": "usedTgAccount"}, res_schema)
-            user.save()
 
+            # TODO: Here we need to properly handle the role change: manager <-> worker:
+            # TODO: m->w => we need to delete all related workers attachments.
+            # TODO: w->m => we need to delete attachment to the manager of the employee (if exists).
+
+            employee.initials = initials
+            employee.telegram_nick = tg_username
+            employee.role = role
+
+            if role is "worker":
+                attached_manager = employee_data["attached_manager"]
+                # TODO: need to reattach the employee (current employee is worker).
+                # TODO: also it is very important to check that role of the attached_manager is 'manager'
+
+            employee.save()
             return validate_response({"status": "ok"}, res_schema)
         except:
-            return get_error_response(500)
+            return server_error_response()
+
+    def options(self, request, *args, **kwargs):
+        return cors_response()

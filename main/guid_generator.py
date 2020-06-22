@@ -3,7 +3,7 @@ import uuid
 
 
 def generate_user_guid():
-    for i in range(0, 20, 1):
+    for i in range(0, 10, 1):
         guid = str(uuid.uuid4())
         user = Employee.objects.filter(guid=guid)
         if user:

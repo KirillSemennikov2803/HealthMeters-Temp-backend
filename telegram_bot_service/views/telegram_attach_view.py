@@ -1,11 +1,11 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 
 from general_module.models import Employee, ManagerToWorker
-from main.position_validate import validate_attach_admin, validate_company_context_attach
 from main.response_processing import get_success_response, get_error_response
+
+
+def validate_company_context_attach(admin: Employee, manager: Employee, worker: Employee):
+    return admin.company == manager.company == worker.company
 
 
 class UserView(APIView):
@@ -21,7 +21,7 @@ class UserView(APIView):
                 return get_success_response({"status": "have not user"})
             manager = manager[0]
             worker = worker[0]
-            if not validate_attach_admin(manager, worker):
+            if not (manager.role == "manager" and worker.role == "worker"):
                 return get_success_response({"status": 'bad permission'})
             if not validate_company_context_attach(user, manager, worker):
                 return get_success_response({"status": 'people in different company'})

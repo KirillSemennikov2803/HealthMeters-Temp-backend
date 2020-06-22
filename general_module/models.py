@@ -24,12 +24,12 @@ class Licence(models.Model):
         related_name="licence_to_company")
     start_time = models.DateField()
     end_time = models.DateField()
-    people_count = models.IntegerField()
+    employees_count = models.IntegerField()
 
 
 @admin.register(Licence)
-class LicenseAdmin(admin.ModelAdmin):
-    list_display = ("company", "start_time", "end_time", "people_count")
+class LicenceAdmin(admin.ModelAdmin):
+    list_display = ("company", "start_time", "end_time", "employees_count")
 
 
 class Employee(models.Model):
@@ -73,8 +73,8 @@ class AdminPanelLicence(models.Model):
     token = models.CharField(max_length=32)
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
-        related_name="admin_license_to_company", null=True, blank=True)
-    active = models.BooleanField(default=True)
+        related_name="admin_licence_to_company", null=True, blank=True)
+    activated = models.BooleanField(default=False)
 
 
 class HealthData(models.Model):
