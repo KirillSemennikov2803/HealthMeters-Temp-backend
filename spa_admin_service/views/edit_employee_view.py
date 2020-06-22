@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 
-from general_module.models import Employee, Company
+from general_module.models import Employee, Company, ManagerToWorker
 from main.request_validation import validate_request
 from main.response_processing import server_error_response, validate_response, cors_response
 from main.request_validation import validate_session, validate_licence
@@ -35,25 +35,55 @@ class UserView(APIView):
             else:
                 employee = employee[0]
 
-            employee_with_same_tg_username =\
+            employee_with_same_tg_username = \
                 Employee.objects.filter(tg_username=tg_username, company=company)
 
-            if employee_with_same_tg_username is not None and\
+            if employee_with_same_tg_username is not None and \
                     employee_with_same_tg_username[0].guid is not employee.guid:
                 return validate_response({"status": "usedTgAccount"}, res_schema)
 
-            # TODO: Here we need to properly handle the role change: manager <-> worker:
-            # TODO: m->w => we need to delete all related workers attachments.
-            # TODO: w->m => we need to delete attachment to the manager of the employee (if exists).
+            # processing change employee role manager -> worker
+            if employee.role is "manager" and role is "worker":
+                attach_workers = ManagerToWorker.objects.filter(manager=employee)
+
+                for worker in attach_workers:
+                    worker.delete()
+
+            if employee.role is "worker" and role is "manager":
+                attach_managers = ManagerToWorker.objects.filter(user=employee)
+
+                if attach_managers is not None:
+                    for attach_manager in attach_managers:
+                        attach_manager.delete()
 
             employee.initials = initials
             employee.telegram_nick = tg_username
             employee.role = role
 
             if role is "worker":
-                attached_manager = employee_data["attached_manager"]
-                # TODO: need to reattach the employee (current employee is worker).
-                # TODO: also it is very important to check that role of the attached_manager is 'manager'
+                attached_manager_guid = employee_data["attached_manager"]
+                manager = Employee.objects.filter(guid=attached_manager_guid)
+
+                if manager is None:
+                    return validate_response({
+                        "status": "error",
+                        "reason": "noEmployee"
+                    }, res_schema)
+
+                manager = manager[0]
+
+                if manager.role is not "manager":
+                    return validate_response({
+                        "status": "error",
+                        "reason": "wrongRoles"
+                    }, res_schema)
+
+                attach_managers = ManagerToWorker.objects.filter(user=employee)
+
+                for attach_manager in attach_managers:
+                    attach_manager.delete()
+
+                ManagerToWorker.objects.create(manager=manager, user=employee)
 
             employee.save()
             return validate_response({"status": "ok"}, res_schema)

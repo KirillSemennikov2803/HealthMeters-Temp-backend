@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 
-from general_module.models import Company, Employee
+from general_module.models import Company, Employee, ManagerToWorker
 
 from main.guid_generator import generate_user_guid
 from main.response_processing import server_error_response, validate_response, cors_response
@@ -32,15 +32,26 @@ class UserView(APIView):
                     "reason": "usedTgAccount"
                 }, res_schema)
 
-            # TODO: also here we need to attach the employee (only in the worker case).
-            # TODO: Check if the manager exists (by the guid) and return noEmployee if not.
+            if role is "worker":
+                attached_manager_guid = employee_data["attachedManager"]
+                manager = Employee.objects.filter(guid=attached_manager_guid, company=company)
 
-            Employee.objects.create(
+                if not manager:
+                    return validate_response({
+                        "status": "error",
+                        "reason": "noEmployee"
+                    }, res_schema)
+                manager = manager[0]
+
+            employee = Employee.objects.create(
                 guid=generate_user_guid(),
                 initials=initials,
                 tg_username=tg_username,
                 role=role,
                 company=company)
+
+            if role is "worker":
+                ManagerToWorker.objects.create(manager=manager, worker=employee)
 
             company.employees_count += 1
             company.save()
