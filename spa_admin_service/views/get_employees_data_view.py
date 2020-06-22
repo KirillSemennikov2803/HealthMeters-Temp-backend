@@ -24,7 +24,7 @@ class UserView(APIView):
             employees = []
 
             if not employees_guids:
-                Employee.objects.filter(company=company)
+                employees = Employee.objects.filter(company=company)
 
             else:
                 for employee_guid in employees_guids:
@@ -46,8 +46,8 @@ class UserView(APIView):
                         attached_manager = manager[0].manager.guid
 
                 body = {
-                    "initials": employee.full_name,
-                    "tgUsername": employee.telegram_nick,
+                    "initials": employee.initials,
+                    "tgUsername": employee.tg_username,
                     "role": employee.role,
                     "attachedManager": attached_manager
                 }
@@ -58,7 +58,6 @@ class UserView(APIView):
                 "status": "ok",
                 "employeesData": employee_data
             }, res_schema)
-
         except:
             return server_error_response()
 

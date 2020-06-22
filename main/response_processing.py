@@ -50,4 +50,3 @@ def get_success_response(body):
 
 def get_error_response(status_code):
     return setup_cors_response_headers(Response(status=status_code, content_type="application/json"))
-

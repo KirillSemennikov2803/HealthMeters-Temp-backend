@@ -32,7 +32,6 @@ class UserView(APIView):
 
             for licence in licences:
                 licence_pack = licence.guid
-                # TODO: Simplify?
                 start_time = unix_time_millis(
                     datetime.datetime.utcfromtimestamp(licence.start_date.timestamp()))
                 end_time = unix_time_millis(

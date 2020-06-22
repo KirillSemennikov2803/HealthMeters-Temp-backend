@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 
-from general_module.models import Employee
+from general_module.models import Employee, Company
 from main.request_validation import validate_request
 from main.response_processing import server_error_response, validate_response, cors_response
 from main.request_validation import validate_session, validate_licence
+from main.session_storage import get_user
 
 from spa_admin_service.schemas.edit_employee.request import req_schema
 from spa_admin_service.schemas.edit_employee.response import res_schema
@@ -21,7 +22,9 @@ class UserView(APIView):
             tg_username = employee_data["tgUsername"]
             role = employee_data["role"]
 
-            employee = Employee.objects.filter(guid=employee_guid)
+            company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
+            # Here we filter the employees only within one company:
+            employee = Employee.objects.filter(guid=employee_guid, company=company)
 
             if employee is None:
                 return validate_response({
@@ -32,7 +35,8 @@ class UserView(APIView):
             else:
                 employee = employee[0]
 
-            employee_with_same_tg_username = Employee.objects.filter(telegram_nick=tg_username)
+            employee_with_same_tg_username =\
+                Employee.objects.filter(tg_username=tg_username, company=company)
 
             if employee_with_same_tg_username is not None and\
                     employee_with_same_tg_username[0].guid is not employee.guid:

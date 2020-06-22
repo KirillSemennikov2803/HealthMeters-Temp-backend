@@ -29,8 +29,6 @@ class UserView(APIView):
             else:
                 employee = employee[0]
 
-            # TODO: Are we sure that here we will delete the employee in cascade mode?
-            # TODO: what will happen if the employee is the manager?
             employee.delete()
 
             company.employees_count -= 1

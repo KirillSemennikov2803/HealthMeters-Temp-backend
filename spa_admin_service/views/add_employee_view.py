@@ -26,18 +26,19 @@ class UserView(APIView):
             company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
 
             # Here we check the uniqueness of the tg_username only within one company:
-            if Employee.objects.filter(telegram_nick=tg_username, company=company) is not None:
+            if Employee.objects.filter(tg_username=tg_username, company=company) is not None:
                 return validate_response({
                     "status": "error",
                     "reason": "usedTgAccount"
                 }, res_schema)
 
-            # TODO: also here we need to attach the employee.
+            # TODO: also here we need to attach the employee (only in the worker case).
+            # TODO: Check if the manager exists (by the guid) and return noEmployee if not.
 
             Employee.objects.create(
                 guid=generate_user_guid(),
                 initials=initials,
-                telegram_nick=tg_username,
+                tg_username=tg_username,
                 role=role,
                 company=company)
 

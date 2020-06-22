@@ -38,7 +38,7 @@ class Employee(models.Model):
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
         related_name="employee_to_company")
-    telegram_nick = models.CharField(max_length=36, unique=True)
+    tg_username = models.CharField(max_length=36, unique=True)
     roles = [
         ('manager', 'manager'),
         ('worker', 'worker'),
@@ -47,7 +47,7 @@ class Employee(models.Model):
     initials = models.CharField(max_length=36)
 
     def __str__(self):
-        return self.telegram_nick
+        return self.tg_username
 
 
 @admin.register(Employee)
