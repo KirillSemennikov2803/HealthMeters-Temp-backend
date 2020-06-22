@@ -3,11 +3,11 @@ import json
 
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User, License
-from main.guid_generater import generate_user_guid
+from general_module.models import AdminPanelLicence, Company, Employee, Licence
+from main.guid_generator import generate_user_guid
 from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import validate_session, validate_license, get_user
+from main.sessions_storage import validate_session, validate_licence, get_user
 from spa_admin_service.schemas.add_employee.request import req_schema
 from spa_admin_service.schemas.add_employee.response import res_schema
 
@@ -15,7 +15,7 @@ from spa_admin_service.schemas.add_employee.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_license()
+    @validate_licence()
     def post(self, request):
         try:
             session = request.data["session"]
@@ -31,14 +31,14 @@ class UserView(APIView):
             guid = generate_user_guid()
 
             now = datetime.datetime.utcnow()
-            license_bd = License.objects.filter(company=company, start_date__lte=now, end_date__gte=now)[0]
+            license_bd = Licence.objects.filter(company=company, start_date__lte=now, end_date__gte=now)[0]
 
             if license_bd.count_of_people >= company.active_people:
                 return validate_response({"status": "error",
                                           "reason": "licenceEmployeesBoundaryReached"}, res_schema)
 
-            user = User.objects.create(guid=guid, full_name=full_name, telegram_nick=tg_nick, position=role,
-                                       company=company)
+            user = Employee.objects.create(guid=guid, full_name=full_name, telegram_nick=tg_nick, position=role,
+                                           company=company)
 
             company.active_people += 1
             company.save()

@@ -2,10 +2,10 @@ import json
 
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User, ManageToUser
+from general_module.models import AdminPanelLicence, Company, Employee, ManagerToWorker
 from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import validate_session, validate_license
+from main.sessions_storage import validate_session, validate_licence
 
 from spa_admin_service.schemas.get_employees.request import req_schema
 from spa_admin_service.schemas.get_employees.response import res_schema
@@ -14,14 +14,14 @@ from spa_admin_service.schemas.get_employees.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_license()
+    @validate_licence()
     def post(self, request):
         try:
             session = request.data["session"]
             employees = request.data["employees"]
             employee_data = []
             for employee in employees:
-                user = User.objects.filter(guid=employee)
+                user = Employee.objects.filter(guid=employee)
 
                 if not user:
                     employee_data.append({"status": "outUser"})
@@ -29,7 +29,7 @@ class UserView(APIView):
                     user = user[0]
                     attached_manager = None
                     if user.position == "worker":
-                        manager = ManageToUser.objects.filter(user=user)
+                        manager = ManagerToWorker.objects.filter(user=user)
 
                         if manager:
                             attached_manager = manager[0].manager.guid

@@ -8,11 +8,11 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User
+from general_module.models import AdminPanelLicence, Company, Employee
 from main import response_processing
 from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import authorize_user, validate_session, validate_license, get_user
+from main.sessions_storage import authorize_user, validate_session, validate_licence, get_user
 
 from spa_admin_service.schemas.edit_employee.request import req_schema
 from spa_admin_service.schemas.edit_employee.response import res_schema
@@ -21,13 +21,13 @@ from spa_admin_service.schemas.edit_employee.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_license()
+    @validate_licence()
     def post(self, request):
         try:
             employee_guid = request.data["employeeGuid"]
             employee_data = request.data["employeeData"]
 
-            user = User.objects.filter(guid=employee_guid)
+            user = Employee.objects.filter(guid=employee_guid)
 
             if not user:
                 return validate_response({"status": "error",
@@ -43,8 +43,8 @@ class UserView(APIView):
             user.telegram_nick = tg_nick
             user.position = position
 
-            check_full_name = User.objects.filter(full_name=full_name)
-            check_telegram_nick = User.objects.filter(telegram_nick=tg_nick)
+            check_full_name = Employee.objects.filter(full_name=full_name)
+            check_telegram_nick = Employee.objects.filter(telegram_nick=tg_nick)
             if not check_full_name or not check_telegram_nick:
                 return validate_response({"status": "usedTgAccount"}, res_schema)
             user.save()

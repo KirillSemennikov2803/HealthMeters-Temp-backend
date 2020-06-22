@@ -1,6 +1,5 @@
 from .response_processing import get_reject_response
 from jsonschema import validate, ValidationError
-# from .sessions_storage import session_exists
 
 
 def validate_request(schema):

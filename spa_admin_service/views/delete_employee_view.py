@@ -1,24 +1,17 @@
-import json
-
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User
+from general_module.models import Company, Employee
 from main import response_processing
-from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import authorize_user, validate_session, validate_license, get_user
+from main.response_processing import get_error_response, validate_response
+from main.sessions_storage import validate_session, validate_licence, get_user
 
 from spa_admin_service.schemas.delete_employee.response import res_schema
 
 
 class UserView(APIView):
     @validate_session()
-    @validate_license()
+    @validate_licence()
     def post(self, request):
         try:
             session = request.data["session"]
@@ -28,7 +21,7 @@ class UserView(APIView):
 
             company = Company.objects.filter(name=company_name)[0]
 
-            user = User.objects.filter(guid=employee_guid)
+            user = Employee.objects.filter(guid=employee_guid)
 
             if not user:
                 return validate_response({"status": "error",

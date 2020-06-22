@@ -3,20 +3,13 @@ import datetime
 
 import redis as redis
 
-from general_module.models import Company, License
+from general_module.models import Company, Licence
 from main.response_processing import get_unauthorized_response, get_success_response
 
 
 class InvalidData(Exception):
     def __init__(self, message):
         self.message = message
-
-
-""""""""""""""""""""""""""""""""""""""""""""""""
-"    Warning:                                  "
-"    This is an inner service and should not   "
-"    be used inside the handlers!              "
-""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def validate_session():
@@ -26,41 +19,46 @@ def validate_session():
             if request_data.get("session") is None:
                 return get_unauthorized_response()
             session = request_data["session"]
-            if user_authorized(session):
+            if session_exists(session):
                 return func(self, request)
             return get_unauthorized_response()
-
         return request_handler
-
     return request_dec
 
 
-def validate_license():
+# Session must be validated before getting passed into this function.
+def validate_licence():
     def request_dec(func):
         def request_handler(self, request):
             request_data = request.data
             session = request_data["session"]
-            company_name = get_user(session)
 
-            company = Company.objects.filter(name=company_name)
+            company = Company.objects.filter(guid=get_user(session))
             if not company:
                 return get_unauthorized_response()
 
             company = company[0]
             now = datetime.datetime.utcnow()
-            license_bd = License.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
+            active_licence_exists =\
+                Licence.objects.filter(company=company, start_date__lte=now, end_date__gte=now)\
+                is not None
 
-            if not license_bd:
+            if not active_licence_exists:
                 return get_success_response({
                     "status": "error",
                     "reason": "licenceExpired"
                 })
 
             return func(self, request)
-
         return request_handler
-
     return request_dec
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+"    Warning:                                  "
+"    This is an inner service and should not   "
+"    be used inside the handlers!              "
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 class SessionsStorage:
@@ -114,6 +112,11 @@ class UsersStorage:
         if not self.is_user_attached(session):
             return None
         return self.users_storage.get(str(session)).decode("utf-8")
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+"    Use this functions inside the handlers    "
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def session_exists(session):

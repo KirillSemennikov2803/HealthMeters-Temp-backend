@@ -3,11 +3,11 @@ from django.db import models
 from django.contrib import admin
 
 
-# Create your models here.
 class Company(models.Model):
-    name = models.CharField(max_length=36, unique=True)
-    password_hash = models.CharField(max_length=36)
-    active_people = models.IntegerField(default=1)
+    guid = models.CharField(max_length=36, primary_key=True)
+    name = models.CharField(max_length=32, unique=True)
+    password = models.CharField(max_length=64)
+    employees_count = models.IntegerField(default=1)
 
     def __str__(self):
         return self.name
@@ -15,68 +15,72 @@ class Company(models.Model):
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("name", "active_people")
+    list_display = ("guid", "name", "employees_count")
 
 
-class License(models.Model):
-    company = models.ForeignKey("general_module.Company", on_delete=models.CASCADE,
-                                related_name="License_to_company")
-    start_date = models.DateField()
-    end_date = models.DateField()
-    count_of_people = models.IntegerField()
+class Licence(models.Model):
+    company = models.ForeignKey(
+        "general_module.Company", on_delete=models.CASCADE,
+        related_name="licence_to_company")
+    start_time = models.DateField()
+    end_time = models.DateField()
+    people_count = models.IntegerField()
 
 
-@admin.register(License)
+@admin.register(Licence)
 class LicenseAdmin(admin.ModelAdmin):
-    list_display = ("company", "start_date", "end_date", "count_of_people")
+    list_display = ("company", "start_time", "end_time", "people_count")
 
 
-class AdminLicense(models.Model):
-    token = models.CharField(max_length=32)
-    company = models.ForeignKey("general_module.Company", on_delete=models.CASCADE,
-                                related_name="admin_license_to_company", null=True, blank=True)
-    active = models.BooleanField(default=True)
-
-
-class User(models.Model):
+class Employee(models.Model):
     guid = models.CharField(max_length=36, primary_key=True)
     telegram_id = models.CharField(max_length=36, unique=True, null=True, blank=True)
-    company = models.ForeignKey("general_module.Company", on_delete=models.CASCADE,
-                                related_name="User_to_company")
+    company = models.ForeignKey(
+        "general_module.Company", on_delete=models.CASCADE,
+        related_name="employee_to_company")
     telegram_nick = models.CharField(max_length=36, unique=True)
-    positions = [
-        ('god', 'god'),
-        ('admin', 'admin'),
+    roles = [
         ('manager', 'manager'),
         ('worker', 'worker'),
     ]
-    position = models.CharField(choices=positions, max_length=36)
-    full_name = models.CharField(max_length=36)
+    role = models.CharField(choices=roles, max_length=36)
+    initials = models.CharField(max_length=36)
 
     def __str__(self):
         return self.telegram_nick
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ("telegram_id", "position", "full_name")
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ("telegram_id", "role", "initials")
 
 
-class ManageToUser(models.Model):
-    manager = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
-                                related_name="manage_to_user")
-    user = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
-                             related_name="user_to_user")
+class ManagerToWorker(models.Model):
+    manager = models.ForeignKey(
+        "general_module.Employee", on_delete=models.CASCADE,
+        related_name="manager_to_worker")
+    worker = models.ForeignKey(
+        "general_module.Employee", on_delete=models.CASCADE,
+        related_name="worker_to_worker")
 
 
-@admin.register(ManageToUser)
-class ManagerToUserAdmin(admin.ModelAdmin):
-    list_display = ("manager", "user")
+@admin.register(ManagerToWorker)
+class ManagerToWorkerAdmin(admin.ModelAdmin):
+    list_display = ("manager", "worker")
+
+
+class AdminPanelLicence(models.Model):
+    token = models.CharField(max_length=32)
+    company = models.ForeignKey(
+        "general_module.Company", on_delete=models.CASCADE,
+        related_name="admin_license_to_company", null=True, blank=True)
+    active = models.BooleanField(default=True)
 
 
 class HealthData(models.Model):
-    user = models.ForeignKey("general_module.User", on_delete=models.CASCADE,
-                             related_name="healthData_to_user")
+    employee = models.ForeignKey(
+        "general_module.Employee", on_delete=models.CASCADE,
+        related_name="health_data_to_employee")
     temperature = models.FloatField()
     date = models.DateTimeField()
     get_latest_by = "date"
@@ -84,4 +88,4 @@ class HealthData(models.Model):
 
 @admin.register(HealthData)
 class HealthDataAdmin(admin.ModelAdmin):
-    list_display = ("user", "temperature", "date")
+    list_display = ("employee", "temperature", "date")

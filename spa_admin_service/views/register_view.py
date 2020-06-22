@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.shortcuts import render
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company
+from general_module.models import AdminPanelLicence, Company
 from main.response_processing import get_success_response, get_error_response
 
 
@@ -16,7 +16,7 @@ class UserView(APIView):
             company_name = request.data["companyName"]
             password = request.data["password"]
 
-            admin_license = AdminLicense.objects.filter(token=token)
+            admin_license = AdminPanelLicence.objects.filter(token=token)
 
             if not admin_license:
                 get_success_response({" status": "error",

@@ -6,7 +6,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company
+from general_module.models import AdminPanelLicence, Company
 from main import response_processing
 from main.response_processing import get_success_response, get_error_response
 from main.sessions_storage import authorize_user, validate_session

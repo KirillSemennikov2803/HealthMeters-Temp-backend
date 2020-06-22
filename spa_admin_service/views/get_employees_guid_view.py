@@ -2,11 +2,11 @@ import json
 
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User
+from general_module.models import AdminPanelLicence, Company, Employee
 from main.request_validation import validate_request
 from main.response_processing import get_success_response, get_error_response, get_unauthorized_response, \
     validate_response
-from main.sessions_storage import validate_session, get_user, validate_license
+from main.sessions_storage import validate_session, get_user, validate_licence
 
 from spa_admin_service.schemas.get_employees_data.request import req_schema
 from spa_admin_service.schemas.get_employees_data.response import res_schema
@@ -15,7 +15,7 @@ from spa_admin_service.schemas.get_employees_data.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_license()
+    @validate_licence()
     def post(self, request):
         try:
             session = request.data["session"]
@@ -28,7 +28,7 @@ class UserView(APIView):
 
             company = company[0]
 
-            users = User.objects.filter(company=company)
+            users = Employee.objects.filter(company=company)
 
             employees = []
 
