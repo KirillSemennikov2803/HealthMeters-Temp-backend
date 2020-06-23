@@ -42,48 +42,56 @@ class UserView(APIView):
                     employee_with_same_tg_username[0].guid is not employee.guid:
                 return validate_response({"status": "usedTgAccount"}, res_schema)
 
-            # processing change employee role manager -> worker
+            # processing change employee role: manager -> worker
             if employee.role == "manager" and role == "worker":
-                attach_workers = ManagerToWorker.objects.filter(manager=employee)
+                attached_workers = ManagerToWorker.objects.filter(manager=employee)
 
-                for worker in attach_workers:
-                    worker.delete()
+                if attached_workers is not None:
+                    for worker in attached_workers:
+                        worker.delete()
 
+            # processing change employee role: worker -> manager
             if employee.role == "worker" and role == "manager":
-                attach_managers = ManagerToWorker.objects.filter(user=employee)
+                attached_managers = ManagerToWorker.objects.filter(employee=employee)
 
-                if attach_managers is not None:
-                    for attach_manager in attach_managers:
-                        attach_manager.delete()
+                # Here we expect only one manager.
+                if attached_managers is not None:
+                    for manager in attached_managers:
+                        manager.delete()
 
             employee.initials = initials
-            employee.telegram_nick = tg_username
+            employee.tg_username = tg_username
             employee.role = role
 
+            # reattaching worker to the manager:
             if role == "worker":
                 attached_manager_guid = employee_data["attached_manager"]
-                manager = Employee.objects.filter(guid=attached_manager_guid)
+                manager = None
 
-                if manager is None:
-                    return validate_response({
-                        "status": "error",
-                        "reason": "noEmployee"
-                    }, res_schema)
+                if attached_manager_guid is not None:
+                    manager = Employee.objects.filter(guid=attached_manager_guid)
 
-                manager = manager[0]
+                    if manager is None:
+                        return validate_response({
+                            "status": "error",
+                            "reason": "noEmployee"
+                        }, res_schema)
 
-                if manager.role != "manager":
-                    return validate_response({
-                        "status": "error",
-                        "reason": "wrongRoles"
-                    }, res_schema)
+                    manager = manager[0]
 
-                attach_managers = ManagerToWorker.objects.filter(user=employee)
+                    if manager.role != "manager":
+                        return validate_response({
+                            "status": "error",
+                            "reason": "wrongRoles"
+                        }, res_schema)
 
-                for attach_manager in attach_managers:
-                    attach_manager.delete()
+                attached_managers = ManagerToWorker.objects.filter(employee=employee)
 
-                ManagerToWorker.objects.create(manager=manager, user=employee)
+                for attached_manager in attached_managers:
+                    attached_manager.delete()
+
+                if manager is not None:
+                    ManagerToWorker.objects.create(manager=manager, employee=employee)
 
             employee.save()
             return validate_response({"status": "ok"}, res_schema)

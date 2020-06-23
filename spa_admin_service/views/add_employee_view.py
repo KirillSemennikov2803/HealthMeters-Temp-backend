@@ -32,16 +32,27 @@ class UserView(APIView):
                     "reason": "usedTgAccount"
                 }, res_schema)
 
+            manager = None
+
             if role is "worker":
                 attached_manager_guid = employee_data["attachedManager"]
-                manager = Employee.objects.filter(guid=attached_manager_guid, company=company)
 
-                if not manager:
-                    return validate_response({
-                        "status": "error",
-                        "reason": "noEmployee"
-                    }, res_schema)
-                manager = manager[0]
+                if attached_manager_guid is not None:
+                    manager = Employee.objects.filter(guid=attached_manager_guid, company=company)
+
+                    if manager is None:
+                        return validate_response({
+                            "status": "error",
+                            "reason": "noEmployee"
+                        }, res_schema)
+
+                    manager = manager[0]
+
+                    if manager.role == "manager":
+                        return validate_response({
+                            "status": "error",
+                            "reason": "wrongRoles"
+                        }, res_schema)
 
             employee = Employee.objects.create(
                 guid=generate_user_guid(),
@@ -50,7 +61,7 @@ class UserView(APIView):
                 role=role,
                 company=company)
 
-            if role is "worker":
+            if role is "worker" and manager is not None:
                 ManagerToWorker.objects.create(manager=manager, worker=employee)
 
             company.employees_count += 1
