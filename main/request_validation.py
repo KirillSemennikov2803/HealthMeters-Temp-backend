@@ -26,8 +26,8 @@ def validate_session():
     def request_dec(func):
         def request_handler(self, request):
             request_data = request.data
-            if request_data.get("session") is None:
-                return unauthorized_response()
+            # if request_data.get("session") is None:
+            #     return unauthorized_response()
             session = request_data["session"]
             if session_exists(session):
                 return func(self, request)

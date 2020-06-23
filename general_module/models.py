@@ -1,7 +1,5 @@
 from django.db import models
 
-from django.contrib import admin
-
 
 class Company(models.Model):
     guid = models.CharField(max_length=36, primary_key=True)
@@ -13,11 +11,6 @@ class Company(models.Model):
         return self.name
 
 
-@admin.register(Company)
-class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("guid", "name", "employees_count")
-
-
 class Licence(models.Model):
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
@@ -25,11 +18,6 @@ class Licence(models.Model):
     start_time = models.DateField()
     end_time = models.DateField()
     employees_count = models.IntegerField()
-
-
-@admin.register(Licence)
-class LicenceAdmin(admin.ModelAdmin):
-    list_display = ("company", "start_time", "end_time", "employees_count")
 
 
 class Employee(models.Model):
@@ -50,11 +38,6 @@ class Employee(models.Model):
         return self.tg_username
 
 
-@admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ("telegram_id", "role", "initials")
-
-
 class ManagerToWorker(models.Model):
     manager = models.ForeignKey(
         "general_module.Employee", on_delete=models.CASCADE,
@@ -62,11 +45,6 @@ class ManagerToWorker(models.Model):
     worker = models.ForeignKey(
         "general_module.Employee", on_delete=models.CASCADE,
         related_name="worker_to_worker")
-
-
-@admin.register(ManagerToWorker)
-class ManagerToWorkerAdmin(admin.ModelAdmin):
-    list_display = ("manager", "worker")
 
 
 class AdminPanelLicence(models.Model):
@@ -84,8 +62,3 @@ class HealthData(models.Model):
     temperature = models.FloatField()
     date = models.DateTimeField()
     get_latest_by = "date"
-
-
-@admin.register(HealthData)
-class HealthDataAdmin(admin.ModelAdmin):
-    list_display = ("employee", "temperature", "date")
