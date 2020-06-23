@@ -1,29 +1,34 @@
 from django.contrib import admin
 
 from general_module.models import \
-    Company, Licence, Employee, ManagerToWorker, HealthData
+    Company, Licence, Employee, ManagerToWorker, HealthData, AdminPanelLicence
 
 
 @admin.register(Company)
-class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("guid", "name", "employees_count")
+class CompanyRegistered(admin.ModelAdmin):
+    list_display = ("name", "guid", "employees_count")
 
 
 @admin.register(Licence)
-class LicenceAdmin(admin.ModelAdmin):
+class LicenceRegistered(admin.ModelAdmin):
     list_display = ("company", "start_time", "end_time", "employees_count")
 
 
 @admin.register(Employee)
-class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ("telegram_id", "role", "initials")
+class EmployeeRegistered(admin.ModelAdmin):
+    list_display = ("initials", "role", "guid", "tg_username", "telegram_id")
 
 
 @admin.register(ManagerToWorker)
-class ManagerToWorkerAdmin(admin.ModelAdmin):
+class ManagerToWorkerRegistered(admin.ModelAdmin):
     list_display = ("manager", "worker")
 
 
+@admin.register(AdminPanelLicence)
+class AdminPanelLicenceRegistered(admin.ModelAdmin):
+    list_display = ("company", "token", "activated")
+
+
 @admin.register(HealthData)
-class HealthDataAdmin(admin.ModelAdmin):
+class HealthDataRegistered(admin.ModelAdmin):
     list_display = ("employee", "temperature", "date")
