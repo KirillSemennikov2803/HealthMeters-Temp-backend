@@ -43,13 +43,13 @@ class UserView(APIView):
                 return validate_response({"status": "usedTgAccount"}, res_schema)
 
             # processing change employee role manager -> worker
-            if employee.role is "manager" and role is "worker":
+            if employee.role == "manager" and role == "worker":
                 attach_workers = ManagerToWorker.objects.filter(manager=employee)
 
                 for worker in attach_workers:
                     worker.delete()
 
-            if employee.role is "worker" and role is "manager":
+            if employee.role == "worker" and role == "manager":
                 attach_managers = ManagerToWorker.objects.filter(user=employee)
 
                 if attach_managers is not None:
@@ -60,7 +60,7 @@ class UserView(APIView):
             employee.telegram_nick = tg_username
             employee.role = role
 
-            if role is "worker":
+            if role == "worker":
                 attached_manager_guid = employee_data["attached_manager"]
                 manager = Employee.objects.filter(guid=attached_manager_guid)
 
@@ -72,7 +72,7 @@ class UserView(APIView):
 
                 manager = manager[0]
 
-                if manager.role is not "manager":
+                if manager.role != "manager":
                     return validate_response({
                         "status": "error",
                         "reason": "wrongRoles"
