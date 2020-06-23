@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
 
+import uuid
+
 from general_module.models import AdminPanelLicence, Company
 
 from main.request_validation import validate_request
@@ -19,7 +21,7 @@ class UserView(APIView):
 
             admin_panel_licence = AdminPanelLicence.objects.filter(token=token)
 
-            if admin_panel_licence:
+            if not admin_panel_licence:
                 return validate_response({
                     "status": "error",
                     "reason": "invalidToken"
@@ -34,16 +36,18 @@ class UserView(APIView):
                     "reason": "activatedToken"
                 }, res_schema)
 
-            if Company.objects.filter(name=company_name) is not None:
+            if Company.objects.filter(name=company_name):
                 return validate_response({
                     "status": "error",
                     "reason": "usedCompanyName"
                 }, res_schema)
 
+            company = Company.objects.create(guid=uuid.uuid4(), name=company_name, password=password)
+
+            admin_panel_licence.company = company
             admin_panel_licence.activated = True
             admin_panel_licence.save()
 
-            Company.objects.create(name=company_name, password_hash=password)
             return validate_response({"status": "ok"}, res_schema)
         except:
             return server_error_response()
