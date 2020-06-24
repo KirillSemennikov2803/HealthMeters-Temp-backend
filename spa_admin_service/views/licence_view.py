@@ -33,9 +33,9 @@ class UserView(APIView):
             for licence_pack in licences_packs:
                 licence_pack_guid = licence_pack.guid
                 start_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence_pack.start_date.timestamp()))
+                    datetime.datetime.utcfromtimestamp(licence_pack.start_time.timestamp()))
                 end_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence_pack.end_date.timestamp()))
+                    datetime.datetime.utcfromtimestamp(licence_pack.end_time.timestamp()))
                 licence_packs_data.append({
                     "licencePack": str(licence_pack_guid),
                     "startTime": start_time,

@@ -49,7 +49,7 @@ def validate_licence(res_schema, is_add_employee_operation=False):
             company = company[0]
             now = datetime.datetime.utcnow()
             active_licence =\
-                Licence.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
+                Licence.objects.filter(company=company, start_time__lte=now, end_time__gte=now)
 
             if active_licence is None:
                 return validate_response({
