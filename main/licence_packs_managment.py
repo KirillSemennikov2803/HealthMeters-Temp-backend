@@ -10,5 +10,5 @@ def unix_time_millis(dt):
 
 def get_active_licence_pack(company: Company):
     now = datetime.datetime.utcnow()
-    licences = Licence.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
-    return None if (licences is None) else licences[0]
+    licences = Licence.objects.filter(company=company, start_time__lte=now, end_time__gte=now)
+    return None if not licences else licences[0]
