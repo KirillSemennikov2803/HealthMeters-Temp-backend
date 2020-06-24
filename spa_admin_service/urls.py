@@ -17,4 +17,5 @@ urlpatterns = [
     path('register', register_view.UserView.as_view()),
     path('licence', licence_view.UserView.as_view()),
     path('add_employee', add_employee_view.UserView.as_view()),
+    path('stats', add_employee_view.UserView.as_view()),
 ]
