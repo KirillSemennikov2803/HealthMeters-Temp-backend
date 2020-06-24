@@ -21,32 +21,32 @@ class UserView(APIView):
         try:
             session = request.data["session"]
             company = Company.objects.filter(guid=get_user(session))[0]
-            licences = Licence.objects.filter(company=company)
+            licences_packs = Licence.objects.filter(company=company)
 
             active_licence_pack = get_active_licence_pack(company)
 
-            if active_licence_pack is not None:
+            if active_licence_pack:
                 active_licence_pack = active_licence_pack.guid
 
-            licence_packs = []
+            licence_packs_data = []
 
-            for licence in licences:
-                licence_pack = licence.guid
+            for licence_pack in licences_packs:
+                licence_pack_guid = licence_pack.guid
                 start_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence.start_date.timestamp()))
+                    datetime.datetime.utcfromtimestamp(licence_pack.start_date.timestamp()))
                 end_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence.end_date.timestamp()))
-                licence_packs.append({
-                    "licencePack": str(licence_pack),
+                    datetime.datetime.utcfromtimestamp(licence_pack.end_date.timestamp()))
+                licence_packs_data.append({
+                    "licencePack": str(licence_pack_guid),
                     "startTime": start_time,
                     "endTime": end_time,
-                    "workersCount": licence.count_of_people
+                    "workersCount": licence_pack.count_of_people
                 })
 
             return validate_response({
                 "serverTime": unix_time_millis(datetime.datetime.utcnow()),
                 "activeLicencePack": active_licence_pack,
-                "licencePacks": licence_packs
+                "licencePacks": licence_packs_data
             }, res_schema)
         except:
             return server_error_response()

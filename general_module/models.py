@@ -12,6 +12,7 @@ class Company(models.Model):
 
 
 class Licence(models.Model):
+    guid = models.CharField(max_length=36, primary_key=True)
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
         related_name="licence_to_company")
