@@ -3,7 +3,7 @@ from django.urls import path
 
 from spa_admin_service.views import \
     company_view, get_employees_data_view, delete_employee_view, edit_employee_view, \
-    get_employees_view, authorize_view, register_view, licence_view, add_employee_view
+    get_employees_view, authorize_view, register_view, licence_view, add_employee_view, stats_view
 
 app_name = "spa_admin_service"
 
@@ -17,5 +17,5 @@ urlpatterns = [
     path('register', register_view.UserView.as_view()),
     path('licence', licence_view.UserView.as_view()),
     path('add_employee', add_employee_view.UserView.as_view()),
-    path('stats', add_employee_view.UserView.as_view()),
+    path('stats', stats_view.UserView.as_view()),
 ]
