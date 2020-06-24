@@ -18,7 +18,7 @@ class UserView(APIView):
             password = request.data["password"]
             company = Company.objects.filter(name=company_name)
 
-            if company is None:
+            if not company:
                 return validate_response({
                     "status": "error",
                     "reason": "wrongCompanyName"

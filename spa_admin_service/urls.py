@@ -13,7 +13,7 @@ urlpatterns = [
     path('delete_employee', delete_employee_view.UserView.as_view()),
     path('edit_employee', edit_employee_view.UserView.as_view()),
     path('get_employees', get_employees_view.UserView.as_view()),
-    path('authorise', authorise_view.UserView.as_view()),
+    path('authorize', authorise_view.UserView.as_view()),
     path('register', register_view.UserView.as_view()),
     path('licence', licence_view.UserView.as_view()),
     path('add_employee', add_employee_view.UserView.as_view()),
