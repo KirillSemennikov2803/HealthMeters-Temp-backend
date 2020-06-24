@@ -16,8 +16,8 @@ class Licence(models.Model):
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
         related_name="licence_to_company")
-    start_time = models.DateField()
-    end_time = models.DateField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
     employees_count = models.IntegerField()
 
 

@@ -40,13 +40,13 @@ class UserView(APIView):
                     "licencePack": str(licence_pack_guid),
                     "startTime": start_time,
                     "endTime": end_time,
-                    "workersCount": licence_pack.count_of_people
+                    "employeesCount": licence_pack.employees_count
                 })
 
             return validate_response({
                 "serverTime": unix_time_millis(datetime.datetime.utcnow()),
                 "activeLicencePack": active_licence_pack,
-                "licencePacks": licence_packs_data
+                "licencePacksData": licence_packs_data
             }, res_schema)
         except:
             return server_error_response()
