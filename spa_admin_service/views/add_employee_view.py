@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 
+import uuid
+
 from general_module.models import Company, Employee, ManagerToWorker
 
-from main.guid_generator import generate_user_guid
 from main.response_processing import server_error_response, validate_response, cors_response
 from main.session_storage import get_user
 from main.request_validation import validate_request, validate_session, validate_licence
@@ -55,7 +56,7 @@ class UserView(APIView):
                         }, res_schema)
 
             employee = Employee.objects.create(
-                guid=generate_user_guid(),
+                guid=str(uuid.uuid4()),
                 initials=initials,
                 tg_username=tg_username,
                 role=role,
