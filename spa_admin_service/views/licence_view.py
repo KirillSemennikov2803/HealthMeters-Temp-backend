@@ -1,47 +1,55 @@
 import datetime
-import json
 
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User, ManageToUser, License
+from general_module.models import Company, Licence
+
 from main.request_validation import validate_request
-from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import validate_session, validate_license, get_user
+from main.response_processing import server_error_response, validate_response, cors_response
+from main.session_storage import get_user
+from main.request_validation import validate_session
+from main.licence_packs_managment import get_active_licence_pack, unix_time_millis
 
-
-
-epoch = datetime.datetime.utcfromtimestamp(0)
-
-
-def unix_time_millis(dt):
-    return round((dt - epoch).total_seconds() * 1000)
+from spa_admin_service.schemas.licence.request import req_schema
+from spa_admin_service.schemas.licence.response import res_schema
 
 
 class UserView(APIView):
+    @validate_request(req_schema)
     @validate_session()
-    @validate_license()
     def post(self, request):
         try:
             session = request.data["session"]
-            company_name = get_user(session)
+            company = Company.objects.filter(guid=get_user(session))[0]
+            licences_packs = Licence.objects.filter(company=company)
 
-            company = Company.objects.filter(name=company_name)[0]
+            active_licence_pack = get_active_licence_pack(company)
 
-            licence_bd = License.objects.filter(company=company)
+            if active_licence_pack:
+                active_licence_pack = active_licence_pack.guid
 
-            data = []
+            licence_packs_data = []
 
-            for licence in licence_bd:
+            for licence_pack in licences_packs:
+                licence_pack_guid = licence_pack.guid
                 start_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence.start_date.timestamp()))
+                    datetime.datetime.utcfromtimestamp(licence_pack.start_time.timestamp()))
                 end_time = unix_time_millis(
-                    datetime.datetime.utcfromtimestamp(licence.end_date.timestamp()))
-                data.append({
+                    datetime.datetime.utcfromtimestamp(licence_pack.end_time.timestamp()))
+                licence_packs_data.append({
+                    "licencePack": str(licence_pack_guid),
                     "startTime": start_time,
                     "endTime": end_time,
-                    "workersCount": licence.count_of_people
+                    "employeesCount": licence_pack.employees_count
                 })
-            res_schema = {}
-            return validate_response({"licencePacks": data}, res_schema)
+
+            return validate_response({
+                "serverTime": unix_time_millis(datetime.datetime.utcnow()),
+                "activeLicencePack": active_licence_pack,
+                "licencePacksData": licence_packs_data
+            }, res_schema)
         except:
-            return get_error_response(500)
+            return server_error_response()
+
+    def options(self, request, *args, **kwargs):
+        return cors_response()
