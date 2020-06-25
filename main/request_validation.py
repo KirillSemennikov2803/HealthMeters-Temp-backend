@@ -28,12 +28,11 @@ def validate_session():
     def request_dec(func):
         def request_handler(self, request):
             request_data = request.data
-            # if request_data.get("session") is None:
-            #     return unauthorized_response()
             session = request_data["session"]
-            if session_exists(session):
-                return func(self, request)
-            return unauthorized_response()
+            # TODO: check database and make sure that Company exists.
+            if not session_exists(session):
+                return unauthorized_response()
+            return func(self, request)
         return request_handler
     return request_dec
 
