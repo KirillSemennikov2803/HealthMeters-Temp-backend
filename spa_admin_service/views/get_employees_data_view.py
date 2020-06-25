@@ -7,8 +7,8 @@ from main.response_processing import server_error_response, validate_response, c
 from main.request_validation import validate_session, validate_licence
 from main.session_storage import get_user
 
-from spa_admin_service.schemas.get_employees.request import req_schema
-from spa_admin_service.schemas.get_employees.response import res_schema
+from spa_admin_service.schemas.get_employees_data.request import req_schema
+from spa_admin_service.schemas.get_employees_data.response import res_schema
 
 
 class UserView(APIView):
@@ -18,23 +18,24 @@ class UserView(APIView):
     def post(self, request):
         try:
             company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
-            employees_guids = request.data["employees"]
 
             # Here we get the employees from the database:
             employees = []
 
-            if not employees_guids:
+            if request.data.get("employees") is None:
                 employees = Employee.objects.filter(company=company)
 
             else:
+                employees_guids = request.data["employees"]
+
                 for employee_guid in employees_guids:
                     employee = Employee.objects.filter(guid=employee_guid, company=company)
 
-                    if employee is not None:
+                    if employee:
                         employees.append(employee[0])
 
             # Here we process the database output and pack the employees data:
-            employee_data = []
+            employees_data = []
 
             for employee in employees:
                 attached_manager = None
@@ -42,21 +43,26 @@ class UserView(APIView):
                 if employee.role == "worker":
                     manager = ManagerToWorker.objects.filter(worker=employee)
 
-                    if manager is not None:
+                    if manager:
                         attached_manager = manager[0].manager.guid
 
-                body = {
+                employee_data = {
                     "initials": employee.initials,
                     "tgUsername": employee.tg_username,
-                    "role": employee.role,
-                    "attachedManager": attached_manager
+                    "role": employee.role
                 }
 
-                employee_data.append(body)
+                if employee.role == "worker":
+                    employee_data.update({"attachedManager": attached_manager})
+
+                employees_data.append({
+                    "employee": employee.guid,
+                    "employeeData": employee_data
+                })
 
             return validate_response({
                 "status": "ok",
-                "employeesData": employee_data
+                "employeesData": employees_data
             }, res_schema)
         except:
             return server_error_response()

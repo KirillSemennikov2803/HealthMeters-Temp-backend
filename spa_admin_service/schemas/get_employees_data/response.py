@@ -22,7 +22,7 @@ res_schema = {
                     }
                 }
             },
-            "required": ["status", "employees"],
+            "required": ["status", "employeesData"],
             "additionalProperties": False
         },
         {
@@ -60,7 +60,12 @@ res_schema = {
                 "role": {
                     "const": "worker"
                 },
-                "attachedManager": {"$ref": "#/definitions/Guid"}
+                "attachedManager": {
+                    "oneOf": [
+                        {"$ref": "#/definitions/Guid"},
+                        {"type": "null"}
+                    ]
+                }
             },
             "required": ["initials", "tgUsername", "role", "attachedManager"],
             "additionalProperties": False
