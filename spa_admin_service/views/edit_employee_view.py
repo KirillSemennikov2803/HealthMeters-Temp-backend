@@ -27,7 +27,7 @@ class UserView(APIView):
             # Here we filter the employees only within one company:
             employee = Employee.objects.filter(guid=employee_guid, company=company)
 
-            if employee is None:
+            if not employee:
                 return validate_response({
                     "status": "error",
                     "reason": "noEmployee"
@@ -39,24 +39,26 @@ class UserView(APIView):
             employee_with_same_tg_username = \
                 Employee.objects.filter(tg_username=tg_username, company=company)
 
-            if employee_with_same_tg_username is not None and \
-                    employee_with_same_tg_username[0].guid is not employee.guid:
-                return validate_response({"status": "usedTgAccount"}, res_schema)
+            if employee_with_same_tg_username and employee_with_same_tg_username[0].guid != employee.guid:
+                return validate_response({
+                    "status": "error",
+                    "reason": "usedTgAccount"
+                }, res_schema)
 
             # processing change employee role: manager -> worker
             if employee.role == "manager" and role == "worker":
                 attached_workers = ManagerToWorker.objects.filter(manager=employee)
 
-                if attached_workers is not None:
+                if attached_workers:
                     for worker in attached_workers:
                         worker.delete()
 
             # processing change employee role: worker -> manager
             if employee.role == "worker" and role == "manager":
-                attached_managers = ManagerToWorker.objects.filter(employee=employee)
+                attached_managers = ManagerToWorker.objects.filter(worker=employee)
 
                 # Here we expect only one manager.
-                if attached_managers is not None:
+                if attached_managers:
                     for manager in attached_managers:
                         manager.delete()
 
@@ -66,13 +68,13 @@ class UserView(APIView):
 
             # reattaching worker to the manager:
             if role == "worker":
-                attached_manager_guid = employee_data["attached_manager"]
+                attached_manager_guid = employee_data["attachedManager"]
                 manager = None
 
                 if attached_manager_guid is not None:
                     manager = Employee.objects.filter(guid=attached_manager_guid)
 
-                    if manager is None:
+                    if not manager:
                         return validate_response({
                             "status": "error",
                             "reason": "noEmployee"
@@ -86,13 +88,13 @@ class UserView(APIView):
                             "reason": "wrongRoles"
                         }, res_schema)
 
-                attached_managers = ManagerToWorker.objects.filter(employee=employee)
+                attached_managers = ManagerToWorker.objects.filter(worker=employee)
 
                 for attached_manager in attached_managers:
                     attached_manager.delete()
 
                 if manager is not None:
-                    ManagerToWorker.objects.create(manager=manager, employee=employee)
+                    ManagerToWorker.objects.create(manager=manager, worker=employee)
 
             employee.save()
             return validate_response({"status": "ok"}, res_schema)

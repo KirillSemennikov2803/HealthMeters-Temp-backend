@@ -13,9 +13,8 @@ from main.licence_packs_managment import get_active_licence_pack
 def validate_request(schema):
     def request_dec(func):
         def request_handler(self, request):
-            request_data = request.data
             try:
-                validate(instance=request_data, schema=schema)
+                validate(instance=request.data, schema=schema)
                 return func(self, request)
             except ValidationError:
                 return reject_response()

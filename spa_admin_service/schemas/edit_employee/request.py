@@ -32,7 +32,12 @@ req_schema = {
                 "role": {
                     "const": "worker"
                 },
-                "attachedManager": {"$ref": "#/definitions/Guid"}
+                "attachedManager": {
+                    "oneOf": [
+                        {"$ref": "#/definitions/Guid"},
+                        {"type": "null"}
+                    ]
+                }
             },
             "required": ["initials", "tgUsername", "role", "attachedManager"],
             "additionalProperties": False
