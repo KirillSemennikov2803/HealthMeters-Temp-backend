@@ -18,9 +18,9 @@ class UserView(APIView):
         try:
             company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
             # Here we filter the employees only within one company:
-            employee = Employee.objects.filter(guid=request.data["employeeGuid"], company=company)
+            employee = Employee.objects.filter(guid=request.data["employee"], company=company)
 
-            if employee is None:
+            if not employee:
                 return validate_response({
                     "status": "error",
                     "reason": "noEmployee"

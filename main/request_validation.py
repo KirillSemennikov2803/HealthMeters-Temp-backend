@@ -3,10 +3,12 @@ from jsonschema import validate, ValidationError
 
 import datetime
 
-from general_module.models import Company, Licence
+from general_module.models import Company
 from main.response_processing import unauthorized_response, validate_response
 from main.session_storage import session_exists
 from main.session_storage import get_user
+
+from main.licence_packs_managment import get_active_licence_pack
 
 
 def validate_request(schema):
@@ -39,17 +41,8 @@ def validate_session():
 def validate_licence(res_schema, is_add_employee_operation=False):
     def request_dec(func):
         def request_handler(self, request):
-            request_data = request.data
-            session = request_data["session"]
-
-            company = Company.objects.filter(guid=get_user(session))
-            if not company:
-                return unauthorized_response()
-
-            company = company[0]
-            now = datetime.datetime.utcnow()
-            active_licence =\
-                Licence.objects.filter(company=company, start_time__lte=now, end_time__gte=now)
+            company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
+            active_licence = get_active_licence_pack(company)
 
             if active_licence is None:
                 return validate_response({

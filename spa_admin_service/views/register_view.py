@@ -42,7 +42,8 @@ class UserView(APIView):
                     "reason": "usedCompanyName"
                 }, res_schema)
 
-            company = Company.objects.create(guid=uuid.uuid4(), name=company_name, password=password)
+            company = Company.objects.create(
+                guid=uuid.uuid4(), name=company_name, password=password, employees_count=0)
 
             admin_panel_licence.company = company
             admin_panel_licence.activated = True

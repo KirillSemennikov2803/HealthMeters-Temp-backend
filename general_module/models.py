@@ -5,7 +5,7 @@ class Company(models.Model):
     guid = models.CharField(max_length=36, primary_key=True)
     name = models.CharField(max_length=32, unique=True)
     password = models.CharField(max_length=64)
-    employees_count = models.IntegerField(default=1)
+    employees_count = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name

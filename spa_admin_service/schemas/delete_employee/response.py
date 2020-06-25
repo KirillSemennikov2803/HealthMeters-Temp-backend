@@ -14,8 +14,9 @@ res_schema = {
                 "status": {"const": "error"},
                 "reason": {
                     "oneOf": [
-                        {"const": "noEmployee"},
-                        {"const": "licenceExpired"}
+                        {"const": "licenceExpired"},
+                        {"const": "licenceEmployeesBoundaryReached"},
+                        {"const": "noEmployee"}
                     ]
                 }
             },

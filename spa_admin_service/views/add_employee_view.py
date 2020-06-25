@@ -26,7 +26,7 @@ class UserView(APIView):
             company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
 
             # Here we check the uniqueness of the tg_username only within one company:
-            if Employee.objects.filter(tg_username=tg_username, company=company) is not None:
+            if Employee.objects.filter(tg_username=tg_username, company=company):
                 return validate_response({
                     "status": "error",
                     "reason": "usedTgAccount"
@@ -34,13 +34,13 @@ class UserView(APIView):
 
             manager = None
 
-            if role is "worker":
+            if role == "worker":
                 attached_manager_guid = employee_data["attachedManager"]
 
                 if attached_manager_guid is not None:
                     manager = Employee.objects.filter(guid=attached_manager_guid, company=company)
 
-                    if manager is None:
+                    if not manager:
                         return validate_response({
                             "status": "error",
                             "reason": "noEmployee"
@@ -48,7 +48,7 @@ class UserView(APIView):
 
                     manager = manager[0]
 
-                    if manager.role == "manager":
+                    if manager.role != "manager":
                         return validate_response({
                             "status": "error",
                             "reason": "wrongRoles"
@@ -61,7 +61,7 @@ class UserView(APIView):
                 role=role,
                 company=company)
 
-            if role is "worker" and manager is not None:
+            if role == "worker" and manager is not None:
                 ManagerToWorker.objects.create(manager=manager, worker=employee)
 
             company.employees_count += 1
