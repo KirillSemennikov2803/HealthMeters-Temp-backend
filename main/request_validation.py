@@ -1,12 +1,11 @@
-from .response_processing import reject_response
 from jsonschema import validate, ValidationError
 
-import datetime
-
 from general_module.models import Company
-from main.response_processing import unauthorized_response, validate_response
+
+from main.response_processing import unauthorized_response, validate_response, reject_response
+
 from main.session_storage import session_exists
-from main.session_storage import get_user
+from main.session_storage import get_user, logout_user
 
 from main.licence_packs_managment import get_active_licence_pack
 
@@ -29,10 +28,17 @@ def validate_session():
         def request_handler(self, request):
             request_data = request.data
             session = request_data["session"]
-            # TODO: check database and make sure that Company exists.
+
             if not session_exists(session):
                 return unauthorized_response()
-            return func(self, request)
+
+            # Checking the db in order to make sure that there is a company attached to the session:
+            elif not Company.objects.filter(guid=get_user(session)):
+                logout_user(session)
+                return unauthorized_response()
+
+            else:
+                return func(self, request)
         return request_handler
     return request_dec
 
