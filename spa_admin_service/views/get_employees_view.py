@@ -7,8 +7,8 @@ from main.response_processing import server_error_response, validate_response, c
 from main.session_storage import get_user
 from main.request_validation import validate_session, validate_licence
 
-from spa_admin_service.schemas.get_employees_data.request import req_schema
-from spa_admin_service.schemas.get_employees_data.response import res_schema
+from spa_admin_service.schemas.get_employees.request import req_schema
+from spa_admin_service.schemas.get_employees.response import res_schema
 
 
 class UserView(APIView):
