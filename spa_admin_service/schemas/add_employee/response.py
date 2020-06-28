@@ -14,9 +14,11 @@ res_schema = {
                 "status": {"const": "error"},
                 "reason": {
                     "oneOf": [
-                        {"const": "usedTgAccount"},
                         {"const": "licenceExpired"},
-                        {"const": "licenceEmployeesBoundaryReached"}
+                        {"const": "licenceEmployeesBoundaryReached"},
+                        {"const": "usedTgAccount"},
+                        {"const": "wrongRoles"},
+                        {"const": "noEmployee"}
                     ]
                 }
             },

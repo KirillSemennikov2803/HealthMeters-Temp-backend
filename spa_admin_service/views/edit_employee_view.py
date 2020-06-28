@@ -1,18 +1,11 @@
-import json
-
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from general_module.models import AdminLicense, Company, User
-from main import response_processing
+from general_module.models import Employee, Company, ManagerToWorker
+
 from main.request_validation import validate_request
-from main.response_processing import get_success_response, get_error_response, validate_response
-from main.sessions_storage import authorize_user, validate_session, validate_license, get_user
+from main.response_processing import server_error_response, validate_response, cors_response
+from main.request_validation import validate_session, validate_licence
+from main.session_storage import get_user
 
 from spa_admin_service.schemas.edit_employee.request import req_schema
 from spa_admin_service.schemas.edit_employee.response import res_schema
@@ -21,34 +14,92 @@ from spa_admin_service.schemas.edit_employee.response import res_schema
 class UserView(APIView):
     @validate_request(req_schema)
     @validate_session()
-    @validate_license()
+    @validate_licence(res_schema)
     def post(self, request):
         try:
-            employee_guid = request.data["employeeGuid"]
+            employee_guid = request.data["employee"]
             employee_data = request.data["employeeData"]
+            initials = employee_data["initials"]
+            tg_username = employee_data["tgUsername"]
+            role = employee_data["role"]
 
-            user = User.objects.filter(guid=employee_guid)
+            company = Company.objects.filter(guid=get_user(request.data["session"]))[0]
+            # Here we filter the employees only within one company:
+            employee = Employee.objects.filter(guid=employee_guid, company=company)
 
-            if not user:
-                return validate_response({"status": "error",
-                                          "reason": "outTgAccount"}, res_schema)
+            if not employee:
+                return validate_response({
+                    "status": "error",
+                    "reason": "noEmployee"
+                }, res_schema)
 
-            full_name = employee_data["name"]
-            tg_nick = employee_data["tgUsername"]
-            position = employee_data["role"]
+            else:
+                employee = employee[0]
 
-            user = user[0]
+            employee_with_same_tg_username = \
+                Employee.objects.filter(tg_username=tg_username, company=company)
 
-            user.full_name = full_name
-            user.telegram_nick = tg_nick
-            user.position = position
+            if employee_with_same_tg_username and employee_with_same_tg_username[0].guid != employee.guid:
+                return validate_response({
+                    "status": "error",
+                    "reason": "usedTgAccount"
+                }, res_schema)
 
-            check_full_name = User.objects.filter(full_name=full_name)
-            check_telegram_nick = User.objects.filter(telegram_nick=tg_nick)
-            if not check_full_name or not check_telegram_nick:
-                return validate_response({"status": "usedTgAccount"}, res_schema)
-            user.save()
+            # processing change employee role: manager -> worker
+            if employee.role == "manager" and role == "worker":
+                attached_workers = ManagerToWorker.objects.filter(manager=employee)
 
+                if attached_workers:
+                    for worker in attached_workers:
+                        worker.delete()
+
+            # processing change employee role: worker -> manager
+            if employee.role == "worker" and role == "manager":
+                attached_managers = ManagerToWorker.objects.filter(worker=employee)
+
+                # Here we expect only one manager.
+                if attached_managers:
+                    for manager in attached_managers:
+                        manager.delete()
+
+            employee.initials = initials
+            employee.tg_username = tg_username
+            employee.role = role
+
+            # reattaching worker to the manager:
+            if role == "worker":
+                attached_manager_guid = employee_data["attachedManager"]
+                manager = None
+
+                if attached_manager_guid is not None:
+                    manager = Employee.objects.filter(guid=attached_manager_guid)
+
+                    if not manager:
+                        return validate_response({
+                            "status": "error",
+                            "reason": "noEmployee"
+                        }, res_schema)
+
+                    manager = manager[0]
+
+                    if manager.role != "manager":
+                        return validate_response({
+                            "status": "error",
+                            "reason": "wrongRoles"
+                        }, res_schema)
+
+                attached_managers = ManagerToWorker.objects.filter(worker=employee)
+
+                for attached_manager in attached_managers:
+                    attached_manager.delete()
+
+                if manager is not None:
+                    ManagerToWorker.objects.create(manager=manager, worker=employee)
+
+            employee.save()
             return validate_response({"status": "ok"}, res_schema)
         except:
-            return get_error_response(500)
+            return server_error_response()
+
+    def options(self, request, *args, **kwargs):
+        return cors_response()

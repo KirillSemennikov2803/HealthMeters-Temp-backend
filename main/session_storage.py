@@ -1,10 +1,6 @@
 import uuid
-import datetime
 
 import redis as redis
-
-from general_module.models import Company, License
-from main.response_processing import get_unauthorized_response, get_success_response
 
 
 class InvalidData(Exception):
@@ -17,50 +13,6 @@ class InvalidData(Exception):
 "    This is an inner service and should not   "
 "    be used inside the handlers!              "
 """"""""""""""""""""""""""""""""""""""""""""""""
-
-
-def validate_session():
-    def request_dec(func):
-        def request_handler(self, request):
-            request_data = request.data
-            if request_data.get("session") is None:
-                return get_unauthorized_response()
-            session = request_data["session"]
-            if user_authorized(session):
-                return func(self, request)
-            return get_unauthorized_response()
-
-        return request_handler
-
-    return request_dec
-
-
-def validate_license():
-    def request_dec(func):
-        def request_handler(self, request):
-            request_data = request.data
-            session = request_data["session"]
-            company_name = get_user(session)
-
-            company = Company.objects.filter(name=company_name)
-            if not company:
-                return get_unauthorized_response()
-
-            company = company[0]
-            now = datetime.datetime.utcnow()
-            license_bd = License.objects.filter(company=company, start_date__lte=now, end_date__gte=now)
-
-            if not license_bd:
-                return get_success_response({
-                    "status": "error",
-                    "reason": "licenceExpired"
-                })
-
-            return func(self, request)
-
-        return request_handler
-
-    return request_dec
 
 
 class SessionsStorage:
@@ -105,7 +57,7 @@ class UsersStorage:
     def attach_user(self, session: str, user: str):
         self.users_storage.mset({str(session): str(user)})
 
-    def deattach_user(self, session: str):
+    def detach_user(self, session: str):
         if not self.is_user_attached(session):
             return
         self.users_storage.delete(str(session))
@@ -114,6 +66,11 @@ class UsersStorage:
         if not self.is_user_attached(session):
             return None
         return self.users_storage.get(str(session)).decode("utf-8")
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""
+"    Use this functions inside the handlers    "
+""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def session_exists(session):
@@ -126,10 +83,9 @@ def authorize_user(user: str, allow_multiple_sessions=False):
     users = UsersStorage()
     session = str(uuid.uuid4())
 
-    if not allow_multiple_sessions and sessions.is_session_attached(user):
+    if not allow_multiple_sessions:
         # If the session for this user exists, we need to delete it
-        # in order logout the user from the initial session and
-        # rebind him to the newly created session:
+        # in order to logout the user from the initial session:
         logout_user_full(user)
 
     if not user_authorized(user):
@@ -148,7 +104,7 @@ def logout_user(session: str):
     sessions = SessionsStorage()
     users = UsersStorage()
     sessions.delete_session(users.get_attached_user(session))
-    users.deattach_user(session)
+    users.detach_user(session)
 
 
 def logout_user_full(user: str):
@@ -156,7 +112,7 @@ def logout_user_full(user: str):
     users = UsersStorage()
 
     while sessions.is_session_attached(user):
-        users.deattach_user(sessions.get_attached_session(user))
+        users.detach_user(sessions.get_attached_session(user))
         sessions.delete_session(user)
 
 

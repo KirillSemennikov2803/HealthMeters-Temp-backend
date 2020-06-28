@@ -14,9 +14,9 @@ res_schema = {
                 "status": {"const": "error"},
                 "reason": {
                     "oneOf": [
-                        {"const": "licenceExpired"},
-                        {"const": "licenceEmployeesBoundaryReached"},
-                        {"const": "noEmployee"}
+                        {"const": "invalidToken"},
+                        {"const": "activatedToken"},
+                        {"const": "usedCompanyName"}
                     ]
                 }
             },
