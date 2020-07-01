@@ -7,5 +7,5 @@ res_schema = {
         }
     },
     "required": ["employeesCount"],
-    "additionalProperties": False,
+    "additionalProperties": False
 }

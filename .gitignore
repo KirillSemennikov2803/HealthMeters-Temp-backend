@@ -1,6 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
 
+# Mac OS
+*.DS_Store
+
 # Idea files
 .idea/
 
