@@ -24,10 +24,11 @@ class UserView(APIView):
                                           })
                 else:
                     last_data = last_data.last()
-                    data["users"].append({"initials": subordinate.worker.initials,
-                                          "last_temp": last_data.temperature,
-                                          'date': last_data.date
-                                          })
+                    data["users"].append({
+                        "initials": subordinate.worker.initials,
+                        "last_temp": last_data.temperature,
+                        "date": last_data.date
+                    })
 
             return get_success_response(data)
         except:

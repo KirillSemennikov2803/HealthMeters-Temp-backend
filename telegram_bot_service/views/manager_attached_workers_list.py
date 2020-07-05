@@ -1,8 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
-
-from django.shortcuts import render
 from rest_framework.views import APIView
 
 from general_module.models import Employee, ManagerToWorker
@@ -20,10 +15,11 @@ class UserView(APIView):
 
             data = {"users": []}
             for subordinate in subordinates:
-                data["users"].append({"initials": subordinate.worker.initials,
-                                      "tg_username": subordinate.worker.tg_username,
-                                      "telegram_id": subordinate.worker.telegram_id
-                                      })
+                data["users"].append({
+                    "initials": subordinate.worker.initials,
+                    "tg_username": subordinate.worker.tg_username,
+                    "telegram_id": subordinate.worker.telegram_id
+                })
 
             return get_success_response(data)
         except:
