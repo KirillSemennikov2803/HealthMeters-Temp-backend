@@ -1,6 +1,7 @@
 from django.urls import path
 
-from telegram_bot_service.views import manager_attached_workers_list, manager_attached_workers_statistics, employee_role, worker_add_health_data_view, \
+from telegram_bot_service.views import manager_attached_workers_list, manager_attached_workers_statistics, \
+    employee_role, worker_add_health_data_view, \
     company_list
 
 app_name = "telegram_bot_service"

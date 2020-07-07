@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from rest_framework.views import APIView
 
 from general_module.models import Employee, HealthData

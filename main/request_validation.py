@@ -1,13 +1,10 @@
 from jsonschema import validate, ValidationError
 
 from general_module.models import Company
-
-from main.response_processing import unauthorized_response, validate_response, reject_response
-
-from main.session_storage import session_exists
-from main.session_storage import get_user, logout_user
-
 from main.licence_packs_managment import get_active_licence_pack
+from main.response_processing import unauthorized_response, validate_response, reject_response
+from main.session_storage import get_user, logout_user
+from main.session_storage import session_exists
 
 
 def validate_request(schema):

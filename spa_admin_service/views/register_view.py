@@ -1,12 +1,10 @@
-from rest_framework.views import APIView
-
 import uuid
 
-from general_module.models import AdminPanelLicence, Company
+from rest_framework.views import APIView
 
+from general_module.models import AdminPanelLicence, Company
 from main.request_validation import validate_request
 from main.response_processing import server_error_response, cors_response, validate_response
-
 from spa_admin_service.schemas.register.request import req_schema
 from spa_admin_service.schemas.register.response import res_schema
 
