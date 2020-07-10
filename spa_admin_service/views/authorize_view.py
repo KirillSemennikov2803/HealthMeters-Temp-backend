@@ -1,11 +1,9 @@
 from rest_framework.views import APIView
 
 from general_module.models import Company
-
 from main.request_validation import validate_request
 from main.response_processing import validate_response, server_error_response, cors_response
 from main.session_storage import authorize_user
-
 from spa_admin_service.schemas.authorize.request import req_schema
 from spa_admin_service.schemas.authorize.response import res_schema
 

@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework.views import APIView
 
 from general_module.models import Employee
@@ -11,10 +8,14 @@ class UserView(APIView):
     def post(self, request):
         try:
             telegram_id = request.data["telegram_id"]
-            user = Employee.objects.filter(telegram_id=telegram_id)
-            if not user:
-                return get_success_response({"status": "out of user"})
-            position = user[0].position
-            return get_success_response({"position": position})
+            company_guid = request.data["company"]
+
+            employee = Employee.objects.filter(telegram_id=telegram_id, company__guid=company_guid)
+            if not employee:
+                return get_success_response({"status": "no user"})
+
+            role = employee[0].role
+
+            return get_success_response({"role": role})
         except:
             return get_error_response(500)

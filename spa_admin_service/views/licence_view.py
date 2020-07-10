@@ -3,13 +3,11 @@ import datetime
 from rest_framework.views import APIView
 
 from general_module.models import Company, Licence
-
+from main.licence_packs_managment import get_active_licence_pack, unix_time_millis
 from main.request_validation import validate_request
+from main.request_validation import validate_session
 from main.response_processing import server_error_response, validate_response, cors_response
 from main.session_storage import get_user
-from main.request_validation import validate_session
-from main.licence_packs_managment import get_active_licence_pack, unix_time_millis
-
 from spa_admin_service.schemas.licence.request import req_schema
 from spa_admin_service.schemas.licence.response import res_schema
 

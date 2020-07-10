@@ -1,11 +1,9 @@
 from rest_framework.views import APIView
 
 from general_module.models import Company, Employee
-
+from main.request_validation import validate_request, validate_session, validate_licence
 from main.response_processing import server_error_response, validate_response, cors_response
 from main.session_storage import get_user
-from main.request_validation import validate_request, validate_session, validate_licence
-
 from spa_admin_service.schemas.delete_employee.request import req_schema
 from spa_admin_service.schemas.delete_employee.response import res_schema
 
