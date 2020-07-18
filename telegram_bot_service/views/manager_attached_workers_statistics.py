@@ -27,7 +27,7 @@ class UserView(APIView):
                     data["users"].append({
                         "initials": subordinate.worker.initials,
                         "last_temp": last_data.temperature,
-                        "date": last_data.date
+                        "date": last_data.date.timestamp()
                     })
 
             return get_success_response(data)

@@ -13,7 +13,8 @@ class UserView(APIView):
             companies = []
 
             for user in users:
-                companies.append(user.company.guid)
+                companies.append({"guid": user.company.guid,
+                                  "name": user.company.name})
 
             return get_success_response({"companies": companies})
         except:
