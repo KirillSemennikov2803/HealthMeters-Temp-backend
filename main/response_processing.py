@@ -45,7 +45,7 @@ def setup_cors_response_headers(res):
     return res
 
 
-def get_success_response(body):
+def get_success_response(body={}):
     return setup_cors_response_headers(Response(body, status=200, content_type="application/json"))
 
 

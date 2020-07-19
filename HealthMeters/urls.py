@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin_db/', admin.site.urls),
     path('spa_admin/', include('spa_admin_service.urls')),
     path('telegram_bot/', include('telegram_bot_service.urls')),
+    path('deploy/', include('deploy.urls')),
 ]

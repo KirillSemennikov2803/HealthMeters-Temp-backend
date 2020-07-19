@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   web:
+    container_name: django
     build:
       context: ./
     command: bash ./start_server.sh
@@ -14,10 +15,6 @@ services:
       - 8000:8000
     env_file:
       - ./.env.dev
-  migrate:
-    build:
-      context: ./
-    command: python manage.py migrate
   redis:
     image: "redis:alpine"
 
