@@ -51,10 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:1329",
-    "http://localhost:1329",
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOW_METHODS = [
     'GET',
