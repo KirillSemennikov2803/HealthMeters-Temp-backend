@@ -2,24 +2,22 @@ version: '3.7'
 
 services:
   web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    build:
+      context: ./
+    command: bash ./start_server.sh
     volumes:
       - ./HealthMeters
-    depends_on:
-      - migrate
+    links:
+      - db
       - redis
     ports:
       - 8000:8000
     env_file:
       - ./.env.dev
   migrate:
-      build: .
-      command: python manage.py migrate --noinput
-      volumes:
-        - ./HealthMeters
-      env_file:
-        - ./.env.dev
+    build:
+      context: ./
+    command: python manage.py migrate
   redis:
     image: "redis:alpine"
 
@@ -31,3 +29,5 @@ services:
     volumes:
       - $PWD/redis-data:/var/lib/redis
       - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+  db:
+    image: "keinos/sqlite3"
