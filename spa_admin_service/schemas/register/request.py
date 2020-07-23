@@ -3,7 +3,7 @@ req_schema = {
     "properties": {
         "token": {
             "type": "string",
-            "pattern": "^[0-9a-zA-Z+_]{7}$"
+            "pattern": "^[0-9a-zA-Z+-]{7}$"
         },
         "companyName": {"type": "string"},
         "password": {
