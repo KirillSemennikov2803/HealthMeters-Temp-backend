@@ -23,7 +23,7 @@ class Licence(models.Model):
 
 class Employee(models.Model):
     guid = models.CharField(max_length=36, primary_key=True)
-    telegram_id = models.CharField(max_length=36)
+    telegram_id = models.CharField(max_length=36, null=True)
     company = models.ForeignKey(
         "general_module.Company", on_delete=models.CASCADE,
         related_name="employee_to_company")

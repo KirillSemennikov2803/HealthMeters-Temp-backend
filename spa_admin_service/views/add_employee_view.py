@@ -66,7 +66,8 @@ class UserView(APIView):
             company.employees_count += 1
             company.save()
             return validate_response({"status": "ok"}, res_schema)
-        except:
+        except Exception as err:
+            print(err)
             return server_error_response()
 
     def options(self, request, *args, **kwargs):

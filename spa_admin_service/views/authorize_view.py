@@ -36,7 +36,8 @@ class UserView(APIView):
                     "status": "ok",
                     "session": authorize_user(company.guid)
                 }, res_schema)
-        except:
+        except Exception as er:
+            print(er)
             return server_error_response()
 
     def options(self, request, *args, **kwargs):
