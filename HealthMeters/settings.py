@@ -16,6 +16,8 @@ import os
 import random
 import string
 
+from django.contrib import staticfiles
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -136,4 +138,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
+STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+EMAIL_USE_TLS = False
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "healthmeterstest@mail.ru"
+EMAIL_HOST_PASSWORD = "KirillAnime1"
+DEFAULT_FROM_EMAIL = 'Kirill Test'
+DEFAULT_TO_EMAIL = 'healthmeterstest@mail.ru'

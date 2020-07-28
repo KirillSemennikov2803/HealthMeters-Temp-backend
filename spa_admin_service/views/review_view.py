@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from django.core.mail import send_mail
+from asgiref.sync import async_to_sync
 
 from main.request_validation import validate_request
 from main.response_processing import server_error_response, cors_response
@@ -19,8 +20,8 @@ class UserView(APIView):
             send_mail(
                 'Subject here',
                 'Here is the message.',
-                'from@example.com',
-                ['Semennikov1360@mail.ru'],
+                'healthmeterstest@mail.ru',
+                ['healthmeterstest@mail.ru'],
                 fail_silently=False,
             )
         except Exception as err:
