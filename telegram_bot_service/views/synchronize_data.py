@@ -5,7 +5,7 @@ from main.response_processing import get_success_response, server_error_response
 
 
 class UserView(APIView):
-    def post(self, request):
+    def get(self, request):
         try:
             synchronize_data()
             return get_success_response()
