@@ -22,10 +22,11 @@ def send_new_employees(employees: List[Employee]) -> requests.codes:
         global all_data_updated
         payload: dict = {"data": []}
 
+        url = "%s%s" % (bot_url, "/new_employees")
         for employee in employees:
             payload["data"].append({"guid": employee.guid, "nickname": employee.tg_username})
 
-        response = send_request(RequestType.Post, bot_url, headers, payload)
+        response = send_request(RequestType.Post, url, headers, payload)
 
         if response.status_code != requests.codes.ok:
             all_data_updated = False
